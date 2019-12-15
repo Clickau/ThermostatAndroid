@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SetupWifiActivity"
+    android:padding="20dp"
+    android:background="@android:color/background_light">
+
+    <TextView
+        android:id="@+id/setup_wifi_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textAppearance="@style/ThemeOverlay.MaterialComponents.Light"
+        android:text="@string/setup_wifi_text" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/setup_wifi_ip_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:errorEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/setup_wifi_ip_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:text="@string/setup_wifi_default_ip"
+            android:lines="1"
+            android:maxLines="1"
+            android:hint="@string/setup_wifi_ip_hint" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/setup_wifi_ssid_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/setup_wifi_ssid_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:lines="1"
+                android:maxLines="1"
+                android:hint="@string/setup_wifi_ssid_hint"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/setup_wifi_password_text_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:errorEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/setup_wifi_password_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:importantForAutofill="no"
+            android:inputType="textVisiblePassword"
+            android:lines="1"
+            android:maxLines="1"
+            android:hint="@string/setup_wifi_password_hint"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/setup_wifi_submit_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="16sp"
+        style="@style/Widget.MaterialComponents.Button"
+        android:text="@string/setup_wifi_button_text" />
+
+
+
+
+</LinearLayout>
