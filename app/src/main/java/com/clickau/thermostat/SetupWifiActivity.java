@@ -1,12 +1,7 @@
 package com.clickau.thermostat;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -17,25 +12,26 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import org.w3c.dom.Text;
-
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 
 public class SetupWifiActivity extends AppCompatActivity implements View.OnClickListener {
@@ -48,24 +44,31 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
     private TextInputLayout ipTextInputLayout;
     private TextInputLayout ssidTextInputLayout;
     private TextInputLayout passwordTextInputLayout;
+    private Button submitButton;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup_wifi);
 
-        // display the back button in the action bar
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.setDisplayHomeAsUpEnabled(true);
-
-        Button submitButton = findViewById(R.id.setup_wifi_submit_button);
+        submitButton = findViewById(R.id.setup_wifi_submit_button);
         ipEditText = findViewById(R.id.setup_wifi_ip_edit_text);
         ssidEditText = findViewById(R.id.setup_wifi_ssid_edit_text);
         passwordEditText = findViewById(R.id.setup_wifi_password_edit_text);
         ipTextInputLayout = findViewById(R.id.setup_wifi_ip_text_input_layout);
         ssidTextInputLayout = findViewById(R.id.setup_wifi_ssid_text_input_layout);
         passwordTextInputLayout = findViewById(R.id.setup_wifi_password_text_input_layout);
+        progressBar = findViewById(R.id.setup_wifi_progress_bar);
+        Toolbar toolbar = findViewById(R.id.setup_wifi_toolbar);
+        setSupportActionBar(toolbar);
+
+        // display the back button in the action bar
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null)
+            actionBar.setDisplayHomeAsUpEnabled(true);
+
+        progressBar.setVisibility(View.INVISIBLE);
 
         ipEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -129,6 +132,8 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
 
 
         submitButton.setOnClickListener(this);
+
+
     }
 
 
@@ -170,16 +175,33 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
             return;
         }
 
+        submitButton.setEnabled(false);
+        progressBar.setVisibility(View.VISIBLE);
+
         ResultReceiver receiver = new ResultReceiver(new Handler()) {
 
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
-                if (resultCode == SendRequestIntentService.SUCCESS) {
-                    Toast.makeText(getApplicationContext(), "Succes!", Toast.LENGTH_SHORT).show();
+
+                switch (resultCode) {
+                    case SendRequestIntentService.SUCCESS:
+                        Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_SHORT).show();
+                        break;
+                    case SendRequestIntentService.BAD_IP:
+                        Toast.makeText(getApplicationContext(), "Bad IP", Toast.LENGTH_SHORT).show();
+                        break;
+                    case SendRequestIntentService.BAD_SERVER_RESPONSE:
+                        Toast.makeText(getApplicationContext(), String.format("Server Response: %s", resultData.getString("response")), Toast.LENGTH_LONG).show();
+                        break;
+                    case SendRequestIntentService.IO_EXCEPTION:
+                        Toast.makeText(getApplicationContext(), "IO Exception", Toast.LENGTH_SHORT).show();
+                        break;
+                    case SendRequestIntentService.TIMEOUT:
+                        Toast.makeText(getApplicationContext(), "Timed out", Toast.LENGTH_SHORT).show();
+                        break;
                 }
-                else {
-                    Toast.makeText(getApplicationContext(), "Fail!", Toast.LENGTH_SHORT).show();
-                }
+                submitButton.setEnabled(true);
+                progressBar.setVisibility(View.INVISIBLE);
             }
 
         };
@@ -197,8 +219,11 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
     public static class SendRequestIntentService extends IntentService {
 
         private static final String TAG = SendRequestIntentService.class.getSimpleName();
-        private static final int SUCCESS = 1;
-        private static final int FAIL = 0;
+        private static final int SUCCESS = 0;
+        private static final int BAD_IP = 1;
+        private static final int BAD_SERVER_RESPONSE = 2;
+        private static final int TIMEOUT = 3;
+        private static final int IO_EXCEPTION = 4;
 
 
         public SendRequestIntentService() {
@@ -207,11 +232,15 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
 
         @Override
         protected void onHandleIntent(@Nullable Intent intent) {
+
             if (intent == null) return;
+
             ResultReceiver receiver = intent.getParcelableExtra("receiver");
             String ip = intent.getStringExtra("ip");
             String ssid = intent.getStringExtra("ssid");
             String password = intent.getStringExtra("password");
+
+            assert receiver != null;
 
             String requestBody = String.format("ssid=%s&password=%s", ssid, password);
             Log.d(TAG, String.format("requestBody:%s", requestBody));
@@ -221,16 +250,18 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
                 url = new URL("http", ip, "/post");
             } catch (MalformedURLException e) {
                 e.printStackTrace();
-                // show error
-                receiver.send(FAIL, Bundle.EMPTY);
+                receiver.send(BAD_IP, Bundle.EMPTY);
                 return;
             }
             Log.d(TAG, String.format("url:%s", url.toString()));
 
             try {
+
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
                 try {
+                    urlConnection.setConnectTimeout(5000);
+                    urlConnection.setReadTimeout(5000);
                     urlConnection.setDoOutput(true);
                     urlConnection.setRequestMethod("POST");
 
@@ -239,33 +270,65 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
                     out.flush();
                     out.close();
 
-                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
+                    int responseCode = urlConnection.getResponseCode();
+                    Log.d(TAG, String.format("response code: %d", responseCode));
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                        InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                        StringBuilder result = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            result.append(line);
+                        }
+
+                        Log.d(TAG, String.format("result:%s", result));
+                        if (result.toString().equals("OK")) {
+                            Log.i(TAG, "Success!");
+                            receiver.send(SUCCESS, Bundle.EMPTY);
+                        } else {
+                            Bundle bundle = new Bundle();
+                            bundle.putString("response", result.toString());
+                            receiver.send(BAD_SERVER_RESPONSE, bundle);
+                        }
+                    } else {
+
+                        InputStream errorStream = new BufferedInputStream(urlConnection.getErrorStream());
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(errorStream));
+                        StringBuilder result = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            result.append(line);
+                        }
+
+                        Log.d(TAG, String.format("result:%s", result));
+                        Bundle bundle = new Bundle();
+                        bundle.putString("response", result.toString());
+                        receiver.send(BAD_SERVER_RESPONSE, bundle);
                     }
 
-                    Log.d(TAG, String.format("result:%s", result));
-                    if (result.toString().equals("OK")) {
-                        Log.i(TAG, "Success!");
-                        receiver.send(SUCCESS, Bundle.EMPTY);
-                    }
-                    else {
-                        receiver.send(FAIL, Bundle.EMPTY);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    // show error
-                    receiver.send(FAIL, Bundle.EMPTY);
+                } catch (SocketTimeoutException timeoutEx) {
+
+                    // request or read timed out
+                    receiver.send(TIMEOUT, Bundle.EMPTY);
+
+                } catch (IOException ioEx) {
+
+                    // generic IOException
+                    ioEx.printStackTrace();
+                    receiver.send(IO_EXCEPTION, Bundle.EMPTY);
+
                 } finally {
+
                     urlConnection.disconnect();
+
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                // show error
-                receiver.send(FAIL, Bundle.EMPTY);
+            } catch (IOException ioEx) {
+
+                // URL openConnection error
+                ioEx.printStackTrace();
+                receiver.send(IO_EXCEPTION, Bundle.EMPTY);
+
             }
         }
     }
