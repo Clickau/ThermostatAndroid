@@ -18,6 +18,6 @@
         app:icon="@drawable/ic_wifi_black_24dp"
         app:iconPadding="20dp"
         app:iconTint="@color/darkGrey"
-        android:text="Setup Wifi" />
+        android:text="@string/more_setup_wifi_button_text" />
 
 </RelativeLayout>

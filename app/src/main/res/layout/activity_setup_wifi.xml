@@ -106,7 +106,7 @@
             android:layout_marginTop="10dp"
             android:textSize="16sp"
             style="@style/Widget.MaterialComponents.Button"
-            android:text="@string/setup_wifi_button_text" />
+            android:text="@string/setup_wifi_submit_button_text" />
 
 
     </LinearLayout>

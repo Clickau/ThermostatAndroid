@@ -185,19 +185,19 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
 
                 switch (resultCode) {
                     case SendRequestIntentService.SUCCESS:
-                        Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), R.string.setup_wifi_success_toast, Toast.LENGTH_SHORT).show();
                         break;
                     case SendRequestIntentService.BAD_IP:
-                        Toast.makeText(getApplicationContext(), "Bad IP", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), R.string.setup_wifi_bad_ip_toast, Toast.LENGTH_SHORT).show();
                         break;
                     case SendRequestIntentService.BAD_SERVER_RESPONSE:
-                        Toast.makeText(getApplicationContext(), String.format("Server Response: %s", resultData.getString("response")), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), String.format(R.string.setup_wifi_bad_server_response_toast + ": %s", resultData.getString("response")), Toast.LENGTH_LONG).show();
                         break;
                     case SendRequestIntentService.IO_EXCEPTION:
-                        Toast.makeText(getApplicationContext(), "IO Exception", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), R.string.setup_wifi_io_exception_toast, Toast.LENGTH_SHORT).show();
                         break;
                     case SendRequestIntentService.TIMEOUT:
-                        Toast.makeText(getApplicationContext(), "Timed out", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), R.string.setup_wifi_timed_out_toast, Toast.LENGTH_SHORT).show();
                         break;
                 }
                 submitButton.setEnabled(true);
