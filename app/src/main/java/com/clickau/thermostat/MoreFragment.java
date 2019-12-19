@@ -24,11 +24,21 @@ public class MoreFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MaterialButton button = getView().findViewById(R.id.setup_wifi_button);
-        button.setOnClickListener(new View.OnClickListener() {
+        MaterialButton setupWifiButton = getView().findViewById(R.id.more_setup_wifi_button);
+        setupWifiButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v)
             {
                 Intent intent = new Intent(getContext(), SetupWifiActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        MaterialButton setupFirebaseButton = getView().findViewById(R.id.more_setup_firebase_button);
+        setupFirebaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), SetupFirebaseActivity.class);
+                intent.putExtra("openMethod", "manual");
                 startActivity(intent);
             }
         });

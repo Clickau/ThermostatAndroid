@@ -36,7 +36,7 @@ import java.net.URL;
 
 public class SetupWifiActivity extends AppCompatActivity implements View.OnClickListener {
 
-    final String TAG = "SetupWifiActivity";
+    private static final String TAG = "SetupWifiActivity";
 
     private TextInputEditText ipEditText;
     private TextInputEditText ssidEditText;

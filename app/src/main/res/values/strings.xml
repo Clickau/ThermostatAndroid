@@ -15,4 +15,6 @@
     <string name="setup_wifi_bad_server_response_toast">Server Response</string>
     <string name="setup_wifi_io_exception_toast">IO Exception</string>
     <string name="setup_wifi_timed_out_toast">Timed out</string>
+    <string name="more_setup_firebase_button_text">Setup Firebase</string>
+    <string name="title_activity_setup_firebase">SetupFirebaseActivity</string>
 </resources>
