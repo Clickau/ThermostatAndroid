@@ -30,6 +30,7 @@
         <service
             android:name=".SetupWifiActivity$SendRequestIntentService"
             android:exported="false" />
+        <service android:name=".SetupFirebaseActivity$FirebaseIntentService" />
     </application>
 
 </manifest>
