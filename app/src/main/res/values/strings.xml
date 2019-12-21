@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Thermostat</string>
     <string name="more_setup_wifi_button_text">Setup Wifi</string>
-    <string name="setup_wifi_text">Make sure you are connected to the Thermostat\'s Wifi Network. The SSID and password are shown on the Thermostat\'s display.</string>
+    <string name="setup_wifi_text">Make sure you are connected to the Thermostat\'s Wifi Network and Mobile Data is turned off. The SSID and password are shown on the Thermostat\'s display.</string>
     <string name="setup_wifi_default_ip">192.168.1.1</string>
     <string name="setup_wifi_ip_hint">IP Address</string>
     <string name="setup_wifi_ssid_hint">Your SSID</string>
@@ -17,4 +17,9 @@
     <string name="setup_wifi_timed_out_toast">Timed out</string>
     <string name="more_setup_firebase_button_text">Setup Firebase</string>
     <string name="title_activity_setup_firebase">SetupFirebaseActivity</string>
+    <string name="setup_firebase_text">Enter the name of your Firebase database and one secret key, which you can find by clicking the settings wheel next to Project Overview, then Service accounts and Database secrets</string>
+    <string name="setup_firebase_url_hint">Firebase URL</string>
+    <string name="setup_firebase_root_domain">.firebaseio.com</string>
+    <string name="setup_firebase_secret_key_hint">Secret Key</string>
+    <string name="setup_firebase_submit_button_text">Submit</string>
 </resources>

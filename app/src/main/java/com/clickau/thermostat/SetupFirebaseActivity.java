@@ -1,8 +1,11 @@
 package com.clickau.thermostat;
 
-import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -11,23 +14,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class SetupFirebaseActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -115,8 +107,8 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
     @Override
     public void onClick(View v) {
 
-        String urlStr = firebaseURLEditText.getText().toString();
-        String secret = secretKeyEditText.getText().toString();
+        final String urlStr = firebaseURLEditText.getText().toString();
+        final String secret = secretKeyEditText.getText().toString();
 
         if (TextUtils.isEmpty(urlStr)) {
             Toast.makeText(getApplicationContext(), "Empty URL", Toast.LENGTH_SHORT).show();
@@ -129,81 +121,46 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
             return;
         }
 
-        StringBuilder urlBuilder = new StringBuilder();
+        final String url = urlStr + ".firebaseio.com";
+        Log.d(TAG, String.format("Final URL: %s", url));
 
-        urlBuilder.append("https://");
-        urlBuilder.append(urlStr);
-        urlBuilder.append(".firebaseio.com/.json?auth=");
-        urlBuilder.append(secret);
-
-        Log.d(TAG, String.format("Final URL: %s", urlBuilder.toString()));
-
-        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, FirebaseIntentService.class);
-        intent.putExtra("urlStr", urlBuilder.toString());
-        startService(intent);
-
-    }
-
-
-    public static class FirebaseIntentService extends IntentService {
-
-        public FirebaseIntentService() {
-            super(FirebaseIntentService.class.getSimpleName());
-        }
-
-        @Override
-        protected void onHandleIntent(@Nullable Intent intent) {
-            if (intent == null) return;
-            String urlStr = intent.getStringExtra("urlStr");
-
-            URL url;
-            try {
-                url = new URL(urlStr);
-            } catch(MalformedURLException e) {
-                e.printStackTrace();
-                return;
-            }
-
-            try {
-                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
-                connection.setRequestMethod("GET");
-                connection.connect();
-
-                int responseCode = connection.getResponseCode();
-                switch (responseCode) {
-                    case HttpsURLConnection.HTTP_OK:
-                        Log.d(TAG, "OK");
+        FirebaseService.initialize(url, secret);
+        FirebaseService.get(this, "", new ResultReceiver(new Handler()) {
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                Log.d(TAG, Integer.toString(resultCode));
+                switch (resultCode) {
+                    case FirebaseService.RESULT_SUCCESS:
+                        Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_SHORT).show();
+                        // store url and secret
+                        SharedPreferences pref = getSharedPreferences("firebase_credentials", Context.MODE_PRIVATE);
+                        pref.edit()
+                                .putString("url", url)
+                                .putString("secret", secret)
+                                .apply();
+                        // close all activities and restart main activity
+                        finishAffinity();
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
                         break;
-                    case HttpURLConnection.HTTP_UNAUTHORIZED:
-                        // problem with auth
-                        Log.d(TAG, "Unauthorized");
+                    case FirebaseService.RESULT_DATABASE_NOT_FOUND:
+                        Toast.makeText(getApplicationContext(), "Database not found. Check your URL", Toast.LENGTH_LONG).show();
                         break;
-                    case HttpURLConnection.HTTP_NOT_FOUND:
-                        // problem with url
-                        Log.d(TAG, "Not Found");
+                    case FirebaseService.RESULT_MALFORMED_URL:
+                        Toast.makeText(getApplicationContext(), "Provided URL is invalid", Toast.LENGTH_LONG).show();
                         break;
-                    default:
-                        Log.d(TAG, String.format("Error: %d", responseCode));
+                    case FirebaseService.RESULT_UNAUTHORIZED:
+                        Toast.makeText(getApplicationContext(), "Unauthorized to access database. Check your secret", Toast.LENGTH_LONG).show();
+                        break;
+                    case FirebaseService.RESULT_IO_EXCEPTION:
+                        Toast.makeText(getApplicationContext(), "IO Exception", Toast.LENGTH_LONG).show();
+                        break;
+                    case FirebaseService.RESULT_SERVER_ERROR:
+                        Toast.makeText(getApplicationContext(), "Server Error", Toast.LENGTH_LONG).show();
                         break;
                 }
-
-                InputStream in = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                StringBuilder result = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    result.append(line);
-                }
-
-                Log.d(TAG, result.toString());
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
             }
-
-        }
+        });
     }
+
 }

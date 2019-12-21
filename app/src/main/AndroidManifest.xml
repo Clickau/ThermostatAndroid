@@ -12,13 +12,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <service
+            android:name=".FirebaseService"
+            android:exported="false"></service>
+
         <activity
             android:name=".SetupFirebaseActivity"
             android:label="@string/title_activity_setup_firebase"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".SetupWifiActivity"
-            android:parentActivityName=".MainActivity"></activity>
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +34,6 @@
         <service
             android:name=".SetupWifiActivity$SendRequestIntentService"
             android:exported="false" />
-        <service android:name=".SetupFirebaseActivity$FirebaseIntentService" />
     </application>
 
 </manifest>
