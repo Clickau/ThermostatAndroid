@@ -22,4 +22,11 @@
     <string name="setup_firebase_root_domain">.firebaseio.com</string>
     <string name="setup_firebase_secret_key_hint">Secret Key</string>
     <string name="setup_firebase_submit_button_text">Submit</string>
+    <string name="setup_firebase_invalid_url">Invalid URL</string>
+    <string name="setup_firebase_invalid_secret">Invalid Secret</string>
+    <string name="setup_firebase_success">Success</string>
+    <string name="setup_firebase_database_not_found">Database not found. Check your URL</string>
+    <string name="setup_firebase_unauthorized">Unauthorized to access database. Check your secret</string>
+    <string name="setup_firebase_io_exception">IO Exception</string>
+    <string name="setup_firebase_server_error">Server Error</string>
 </resources>

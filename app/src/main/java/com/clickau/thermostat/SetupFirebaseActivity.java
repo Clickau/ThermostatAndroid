@@ -1,5 +1,6 @@
 package com.clickau.thermostat;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +12,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -18,6 +20,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -67,8 +70,9 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (TextUtils.isEmpty(s)) {
-                    firebaseURLInputLayout.setError("Empty URL");
+                // must contain at least one alphanumeric character and optionally more alphanumeric characters and dashes
+                if (TextUtils.isEmpty(s) || !s.toString().matches("[a-zA-Z0-9][a-zA-Z0-9-]*")) {
+                    firebaseURLInputLayout.setError(getString(R.string.setup_firebase_invalid_url));
                 } else {
                     firebaseURLInputLayout.setError(null);
                 }
@@ -88,8 +92,9 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
 
             @Override
             public void afterTextChanged(Editable s) {
+                // secret has to be made up of 40 alphanumeric characters
                 if (TextUtils.isEmpty(s) || !s.toString().matches("[a-zA-Z0-9]{40}")) {
-                    secretKeyInputLayout.setError("Invalid Secret");
+                    secretKeyInputLayout.setError(getString(R.string.setup_firebase_invalid_secret));
                 } else {
                     secretKeyInputLayout.setError(null);
                 }
@@ -105,19 +110,24 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(View view) {
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (imm != null)
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
         final String urlStr = firebaseURLEditText.getText().toString();
         final String secret = secretKeyEditText.getText().toString();
 
-        if (TextUtils.isEmpty(urlStr)) {
-            Toast.makeText(getApplicationContext(), "Empty URL", Toast.LENGTH_SHORT).show();
+        // must contain at least one alphanumeric character and optionally more alphanumeric characters and dashes
+        if (TextUtils.isEmpty(urlStr) || !urlStr.matches("[a-zA-Z0-9][a-zA-Z0-9-]*")) {
+            Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_invalid_url, Snackbar.LENGTH_LONG).show();
             return;
         }
 
         // secret has to be made up of 40 alphanumeric characters
         if (TextUtils.isEmpty(secret) || !secret.matches("[a-zA-Z0-9]{40}")) {
-            Toast.makeText(getApplicationContext(), "Invalid Secret", Toast.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_invalid_secret, Snackbar.LENGTH_LONG).show();
             return;
         }
 
@@ -131,7 +141,9 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
                 Log.d(TAG, Integer.toString(resultCode));
                 switch (resultCode) {
                     case FirebaseService.RESULT_SUCCESS:
-                        Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), R.string.setup_firebase_success, Toast.LENGTH_SHORT).show();
+                        // the snackbar wouldn't be visible when switching activities
+                        //Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_success, Snackbar.LENGTH_LONG).show();
                         // store url and secret
                         SharedPreferences pref = getSharedPreferences("firebase_credentials", Context.MODE_PRIVATE);
                         pref.edit()
@@ -144,19 +156,19 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
                         startActivity(intent);
                         break;
                     case FirebaseService.RESULT_DATABASE_NOT_FOUND:
-                        Toast.makeText(getApplicationContext(), "Database not found. Check your URL", Toast.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_database_not_found, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_MALFORMED_URL:
-                        Toast.makeText(getApplicationContext(), "Provided URL is invalid", Toast.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_invalid_url, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_UNAUTHORIZED:
-                        Toast.makeText(getApplicationContext(), "Unauthorized to access database. Check your secret", Toast.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_unauthorized, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_IO_EXCEPTION:
-                        Toast.makeText(getApplicationContext(), "IO Exception", Toast.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_io_exception, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_SERVER_ERROR:
-                        Toast.makeText(getApplicationContext(), "Server Error", Toast.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_server_error, Snackbar.LENGTH_LONG).show();
                         break;
                 }
             }

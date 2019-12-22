@@ -1,5 +1,6 @@
 package com.clickau.thermostat;
 
+import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,15 +12,16 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -33,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+
 
 public class SetupWifiActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -147,7 +150,13 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
 
     // happens when the user clicks the Submit button
     @Override
-    public void onClick(View v) {
+    public void onClick(View view) {
+
+        // hide keyboard
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (imm != null)
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
         String ip = ipEditText.getText().toString();
         String ssid = ssidEditText.getText().toString();
         String password = passwordEditText.getText().toString();
@@ -156,21 +165,21 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
         if (TextUtils.isEmpty(ip) || !Patterns.IP_ADDRESS.matcher(ip).matches())
         {
             Log.e(TAG, getString(R.string.setup_wifi_ip_invalid_error));
-            Toast.makeText(getApplicationContext(), getString(R.string.setup_wifi_ip_invalid_error), Toast.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(android.R.id.content), R.string.setup_wifi_ip_invalid_error, Snackbar.LENGTH_LONG).show();
             ipTextInputLayout.setError(getString(R.string.setup_wifi_ip_invalid_error));
             return;
         }
         if (TextUtils.isEmpty(ssid))
         {
             Log.e(TAG, getString(R.string.setup_wifi_ssid_empty_error));
-            Toast.makeText(getApplicationContext(), getString(R.string.setup_wifi_ssid_empty_error), Toast.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(android.R.id.content), R.string.setup_wifi_ssid_empty_error, Snackbar.LENGTH_LONG).show();
             ssidTextInputLayout.setError(getString(R.string.setup_wifi_ssid_empty_error));
             return;
         }
         if (TextUtils.isEmpty(password))
         {
             Log.e(TAG, getString(R.string.setup_wifi_password_empty_error));
-            Toast.makeText(getApplicationContext(), getString(R.string.setup_wifi_password_empty_error), Toast.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(android.R.id.content), R.string.setup_wifi_password_empty_error, Snackbar.LENGTH_LONG).show();
             passwordTextInputLayout.setError(getString(R.string.setup_wifi_password_empty_error));
             return;
         }
@@ -185,19 +194,19 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
 
                 switch (resultCode) {
                     case SendRequestIntentService.SUCCESS:
-                        Toast.makeText(getApplicationContext(), R.string.setup_wifi_success_toast, Toast.LENGTH_SHORT).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_wifi_success_toast, Snackbar.LENGTH_LONG).show();
                         break;
                     case SendRequestIntentService.BAD_IP:
-                        Toast.makeText(getApplicationContext(), R.string.setup_wifi_bad_ip_toast, Toast.LENGTH_SHORT).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_wifi_bad_ip_toast, Snackbar.LENGTH_LONG).show();
                         break;
                     case SendRequestIntentService.BAD_SERVER_RESPONSE:
-                        Toast.makeText(getApplicationContext(), String.format(R.string.setup_wifi_bad_server_response_toast + ": %s", resultData.getString("response")), Toast.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), String.format(R.string.setup_wifi_bad_server_response_toast + ": %s", resultData.getString("response")), Snackbar.LENGTH_LONG).show();
                         break;
                     case SendRequestIntentService.IO_EXCEPTION:
-                        Toast.makeText(getApplicationContext(), R.string.setup_wifi_io_exception_toast, Toast.LENGTH_SHORT).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_wifi_io_exception_toast, Snackbar.LENGTH_LONG).show();
                         break;
                     case SendRequestIntentService.TIMEOUT:
-                        Toast.makeText(getApplicationContext(), R.string.setup_wifi_timed_out_toast, Toast.LENGTH_SHORT).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_wifi_timed_out_toast, Snackbar.LENGTH_LONG).show();
                         break;
                 }
                 submitButton.setEnabled(true);
