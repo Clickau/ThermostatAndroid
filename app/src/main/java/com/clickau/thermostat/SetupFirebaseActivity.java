@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -32,6 +33,8 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
     private TextInputEditText secretKeyEditText;
     private TextInputLayout firebaseURLInputLayout;
     private TextInputLayout secretKeyInputLayout;
+    private Button submitButton;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +56,8 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
         secretKeyEditText = findViewById(R.id.setup_firebase_secret_key);
         firebaseURLInputLayout = findViewById(R.id.setup_firebase_url_text_input_layout);
         secretKeyInputLayout = findViewById(R.id.setup_firebase_secret_key_text_input_layout);
-        Button submitButton = findViewById(R.id.setup_firebase_submit_button);
+        submitButton = findViewById(R.id.setup_firebase_submit_button);
+        progressBar = findViewById(R.id.setup_firebase_progress_bar);
 
         submitButton.setOnClickListener(this);
 
@@ -101,6 +105,8 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
             }
         });
 
+        progressBar.setVisibility(View.INVISIBLE);
+
     }
 
     @Override
@@ -131,6 +137,9 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
             return;
         }
 
+        submitButton.setEnabled(false);
+        progressBar.setVisibility(View.VISIBLE);
+
         final String url = urlStr + ".firebaseio.com";
         Log.d(TAG, String.format("Final URL: %s", url));
 
@@ -139,6 +148,8 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
                 Log.d(TAG, Integer.toString(resultCode));
+                submitButton.setEnabled(true);
+                progressBar.setVisibility(View.INVISIBLE);
                 switch (resultCode) {
                     case FirebaseService.RESULT_SUCCESS:
                         Toast.makeText(getApplicationContext(), R.string.setup_firebase_success, Toast.LENGTH_SHORT).show();
