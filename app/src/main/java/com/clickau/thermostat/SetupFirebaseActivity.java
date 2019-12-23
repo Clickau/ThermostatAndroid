@@ -128,12 +128,14 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
         // must contain at least one alphanumeric character and optionally more alphanumeric characters and dashes
         if (TextUtils.isEmpty(urlStr) || !urlStr.matches("[a-zA-Z0-9][a-zA-Z0-9-]*")) {
             Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_invalid_url, Snackbar.LENGTH_LONG).show();
+            firebaseURLInputLayout.setError(getString(R.string.setup_firebase_invalid_url));
             return;
         }
 
         // secret has to be made up of 40 alphanumeric characters
         if (TextUtils.isEmpty(secret) || !secret.matches("[a-zA-Z0-9]{40}")) {
             Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_invalid_secret, Snackbar.LENGTH_LONG).show();
+            secretKeyInputLayout.setError(getString(R.string.setup_firebase_invalid_secret));
             return;
         }
 
