@@ -5,11 +5,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="20dp"
     android:background="@android:color/background_light">
-
     <com.google.android.material.button.MaterialButton
         style="@style/AppTheme.Button.Outlined"
         android:id="@+id/more_setup_wifi_button"
         app:icon="@drawable/ic_wifi_black_24dp"
+        app:backgroundTint="@android:color/background_light"
         android:text="@string/more_setup_wifi_button_text" />
 
     <com.google.android.material.button.MaterialButton
@@ -17,6 +17,7 @@
         android:id="@+id/more_setup_firebase_button"
         android:layout_below="@+id/more_setup_wifi_button"
         app:icon="@drawable/ic_cloud_queue_black_24dp"
+        app:backgroundTint="@android:color/background_light"
         android:text="@string/more_setup_firebase_button_text"/>
 
 </RelativeLayout>

@@ -3,4 +3,4 @@
     android:id="@+id/fragment_schedules_recycler_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="7.5dp"/>
+    android:background="@android:color/background_light"/>
