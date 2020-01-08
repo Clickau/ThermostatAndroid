@@ -3,7 +3,6 @@ package com.clickau.thermostat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,22 +10,29 @@ import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.SchedulesViewHolder> {
 
-    private ArrayList<Pair<String, String>> dataset;
+    private ArrayList<List<String>> dataset;
 
     public static class SchedulesViewHolder extends RecyclerView.ViewHolder {
 
-        public View view;
+        private TextView titleTextView;
+        private TextView infoTextView;
+        private TextView repeatTextView;
+        private TextView priorityTextView;
 
-        public SchedulesViewHolder(@NonNull View itemView) {
+        private SchedulesViewHolder(@NonNull View itemView) {
             super(itemView);
-            view  = itemView;
+            titleTextView = itemView.findViewById(R.id.schedule_view_title_text_view);
+            infoTextView = itemView.findViewById(R.id.schedule_view_info_text_view);
+            repeatTextView = itemView.findViewById(R.id.schedule_view_repeat_text_view);
+            priorityTextView = itemView.findViewById(R.id.schedule_view_priority_text_view);
         }
     }
 
-    public SchedulesAdapter(ArrayList<Pair<String, String>> data) {
+    public SchedulesAdapter(ArrayList<List<String>> data) {
         dataset = data;
     }
 
@@ -42,11 +48,10 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
     @Override
     public void onBindViewHolder(@NonNull SchedulesViewHolder holder, int position) {
 
-        RelativeLayout relativeLayout = (RelativeLayout) holder.view;
-        TextView titleTextView = relativeLayout.findViewById(R.id.schedule_view_title_text_view);
-        TextView infoTextView = relativeLayout.findViewById(R.id.schedule_view_info_text_view);
-        titleTextView.setText(dataset.get(position).first);
-        infoTextView.setText(dataset.get(position).second);
+        holder.titleTextView.setText(dataset.get(position).get(0));
+        holder.infoTextView.setText(dataset.get(position).get(1));
+        holder.repeatTextView.setText(dataset.get(position).get(2));
+        holder.priorityTextView.setText(dataset.get(position).get(3));
     }
 
     @Override

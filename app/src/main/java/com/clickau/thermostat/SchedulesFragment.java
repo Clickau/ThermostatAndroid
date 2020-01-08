@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class SchedulesFragment extends Fragment {
 
@@ -37,10 +39,10 @@ public class SchedulesFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
 
-        ArrayList<Pair<String, String>> list = new ArrayList<>();
-        list.add(new Pair<String, String>("title1", "info1"));
-        list.add(new Pair<String, String>("title2", "info2"));
-        list.add(new Pair<String, String>("title3", "info3"));
+        ArrayList<List<String>> list = new ArrayList<>();
+        list.add(Arrays.asList("8:00 to 17:00", "Temperature: 20.5°C", "Daily", "Priority: 3"));
+        list.add(Arrays.asList("Monday, 12:15 to 15:45", "Temperature: 18.0°C", "Weekly", "Priority: 2"));
+        list.add(Arrays.asList("From December 24th 2019, 8:00 to December 25th, 22:00", "Temperature: 22.0°C", "Once","Priority: 1"));
         listAdapter = new SchedulesAdapter(list);
         recyclerView.setAdapter(listAdapter);
     }
