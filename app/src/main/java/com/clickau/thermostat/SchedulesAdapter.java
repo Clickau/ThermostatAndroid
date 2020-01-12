@@ -6,34 +6,37 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Locale;
 
 public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.SchedulesViewHolder> {
 
-    private ArrayList<List<String>> dataset;
+    private ArrayList<Schedule> schedules;
 
     public static class SchedulesViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView titleTextView;
-        private TextView infoTextView;
+        private TextView temperatureTextView;
         private TextView repeatTextView;
-        private TextView priorityTextView;
+        private TextView startTextView;
+        private TextView endTextView;
+        private TextView weekdaysTextView;
 
         private SchedulesViewHolder(@NonNull View itemView) {
             super(itemView);
-            titleTextView = itemView.findViewById(R.id.schedule_view_title_text_view);
-            infoTextView = itemView.findViewById(R.id.schedule_view_info_text_view);
+            temperatureTextView = itemView.findViewById(R.id.schedule_view_temperature_text_view);
             repeatTextView = itemView.findViewById(R.id.schedule_view_repeat_text_view);
-            priorityTextView = itemView.findViewById(R.id.schedule_view_priority_text_view);
+            startTextView = itemView.findViewById(R.id.schedule_view_start_text_view);
+            endTextView = itemView.findViewById(R.id.schedule_view_end_text_view);
+            weekdaysTextView = itemView.findViewById(R.id.schedule_view_weekdays_text_view);
         }
     }
 
-    public SchedulesAdapter(ArrayList<List<String>> data) {
-        dataset = data;
+    public SchedulesAdapter(ArrayList<Schedule> schedules) {
+        this.schedules = schedules;
     }
 
     @NonNull
@@ -47,15 +50,37 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
 
     @Override
     public void onBindViewHolder(@NonNull SchedulesViewHolder holder, int position) {
+        Schedule schedule = schedules.get(position);
 
-        holder.titleTextView.setText(dataset.get(position).get(0));
-        holder.infoTextView.setText(dataset.get(position).get(1));
-        holder.repeatTextView.setText(dataset.get(position).get(2));
-        holder.priorityTextView.setText(dataset.get(position).get(3));
+        holder.temperatureTextView.setText(String.format(Locale.US,"%.1f°C", schedule.getTemperature()));
+        holder.repeatTextView.setText(schedule.getRepeat().toString());
+        holder.startTextView.setText(String.format(Locale.US, "Start: %s", schedule.getStartString()));
+        holder.endTextView.setText(String.format(Locale.US, "End: %s", schedule.getEndString()));
+        if (schedules.get(position).getRepeat().equals(Schedule.Repeat.Weekly)) {
+            StringBuilder weekdayBuilder = new StringBuilder("On: ");
+            String[] weekdayStrings = new DateFormatSymbols(Locale.getDefault()).getShortWeekdays(); // index 1 is Sunday, index 2 is Monday etc (as specified by Calendar.MONDAY etc)
+            int[] weekdays = schedule.getWeekdays();
+            for (int i = 0; i < weekdays.length; i++) {
+                weekdayBuilder.append(weekdayStrings[weekdays[i]]);
+
+                if (i != weekdays.length - 1)
+                    weekdayBuilder.append(", ");
+            }
+            holder.weekdaysTextView.setText(weekdayBuilder.toString());
+            holder.weekdaysTextView.setVisibility(View.VISIBLE);
+        } else {
+            holder.weekdaysTextView.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return dataset.size();
+        return schedules.size();
+    }
+
+    public void updateSchedules(Collection<? extends Schedule> newSchedules) {
+        schedules.clear();
+        schedules.addAll(newSchedules);
+        notifyDataSetChanged();
     }
 }

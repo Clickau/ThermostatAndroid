@@ -29,4 +29,5 @@
     <string name="setup_firebase_unauthorized">Unauthorized to access database. Check your secret</string>
     <string name="setup_firebase_io_exception">IO Exception</string>
     <string name="setup_firebase_server_error">Server Error</string>
+    <string name="schedules_menu_refresh">Refresh</string>
 </resources>

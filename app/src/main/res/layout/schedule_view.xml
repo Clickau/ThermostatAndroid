@@ -9,11 +9,11 @@
     android:layout_marginBottom="0dp">
 
     <TextView
-        android:id="@+id/schedule_view_title_text_view"
+        android:id="@+id/schedule_view_temperature_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-        android:text="08:00 to 17:00"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+        android:text="20.5°C"
         android:layout_alignParentTop="true"/>
 
     <TextView
@@ -22,24 +22,31 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:text="Daily"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+        android:text="Once"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1" />
 
     <TextView
-        android:id="@+id/schedule_view_info_text_view"
+        android:id="@+id/schedule_view_start_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/schedule_view_title_text_view"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        android:text="Temperature: 20.5°C" />
+        android:layout_below="@+id/schedule_view_temperature_text_view"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:text="Start: December 24th 2019, 08:00" />
 
     <TextView
-        android:id="@+id/schedule_view_priority_text_view"
+        android:id="@+id/schedule_view_end_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/schedule_view_title_text_view"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        android:text="Priority: 3" />
+        android:layout_below="@+id/schedule_view_start_text_view"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:text="End: January 3rd 2020, 17:30" />
+
+    <TextView
+        android:id="@+id/schedule_view_weekdays_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/schedule_view_end_text_view"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+        android:text="On: Mon, Tue, Sun" />
 
 </RelativeLayout>
