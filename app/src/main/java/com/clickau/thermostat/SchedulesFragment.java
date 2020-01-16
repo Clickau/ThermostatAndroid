@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,19 +19,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 public class SchedulesFragment extends Fragment {
@@ -57,7 +54,6 @@ public class SchedulesFragment extends Fragment {
             @Override
             public void onRefresh() {
                 RefreshList();
-                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -72,32 +68,60 @@ public class SchedulesFragment extends Fragment {
         recyclerView.setAdapter(listAdapter);
 
         swipeRefreshLayout.setRefreshing(true);
+        RefreshList();
+    }
 
-        FirebaseService.get(getContext(), "/Program", new ResultReceiver(new Handler()) {
+    public void RefreshList() {
+        Log.d(TAG, "Refreshing Schedules list");
+
+        FirebaseService.get(getContext(), "/Program", new ResultReceiver(new Handler()) { // TODO: Ask for path to the schedules in Setup Firebase
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
                 switch (resultCode) {
                     case FirebaseService.RESULT_SUCCESS:
                         String str = resultData.getString("result");
                         Log.d(TAG, String.format("ScheduleString: %s", str));
-                        Gson gson = new GsonBuilder().registerTypeAdapter(Schedule.class, new ScheduleDeserializer()).create();
+                        Gson gson = new GsonBuilder().registerTypeAdapter(Schedule.class, new Schedule.Deserializer()).create();
                         Type mapType = new TypeToken<Map<String, Schedule>>() {}.getType();
                         Map<String, Schedule> map = gson.fromJson(str, mapType);
-                        Log.d(TAG, String.format("map: %s", map.toString()));
+                        int invalidSchedules = 0;
+                        for (Iterator<Schedule> it = map.values().iterator(); it.hasNext();) {
+                            Schedule schedule = it.next();
+                            if (schedule == null) {
+                                it.remove();
+                                invalidSchedules++;
+                            }
+                        }
+                        Log.d(TAG, String.format("Invalid Schedules: %d", invalidSchedules));
+                        if (invalidSchedules != 0) {
+                            //TODO: Use a textview above the recyclerview to display this error (and maybe others)
+                            Snackbar snackbar = Snackbar.make(getActivity().findViewById(android.R.id.content), invalidSchedules == 1 ? getString(R.string.schedules_invalid_schedules_singular) : String.format(Locale.US, getString(R.string.schedules_invalid_schedules_plural), invalidSchedules), Snackbar.LENGTH_LONG);
+                            TextView textView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
+                            textView.setMaxLines(3);
+                            snackbar.show();
+
+                        }
                         listAdapter.updateSchedules(map.values());
-                        swipeRefreshLayout.setRefreshing(false);
                         break;
-                    default:
-                        Log.d(TAG, String.format("resultCode: %d", resultCode));
+                    case FirebaseService.RESULT_DATABASE_NOT_FOUND:
+                        Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.setup_firebase_database_not_found, Snackbar.LENGTH_LONG).show();
+                        break;
+                    case FirebaseService.RESULT_MALFORMED_URL:
+                        Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.setup_firebase_invalid_url, Snackbar.LENGTH_LONG).show();
+                        break;
+                    case FirebaseService.RESULT_UNAUTHORIZED:
+                        Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.setup_firebase_unauthorized, Snackbar.LENGTH_LONG).show();
+                        break;
+                    case FirebaseService.RESULT_IO_EXCEPTION:
+                        Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.setup_firebase_io_exception, Snackbar.LENGTH_LONG).show();
+                        break;
+                    case FirebaseService.RESULT_SERVER_ERROR:
+                        Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.setup_firebase_server_error, Snackbar.LENGTH_LONG).show();
                         break;
                 }
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
-
-    }
-
-    public void RefreshList() {
-        Log.d(TAG, "Refreshing Schedules list");
     }
 
     @Override
@@ -111,59 +135,12 @@ public class SchedulesFragment extends Fragment {
         if (item.getItemId() == R.id.fragment_schedules_menu_refresh) {
             swipeRefreshLayout.setRefreshing(true);
             RefreshList();
-            swipeRefreshLayout.setRefreshing(false);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private static class ScheduleDeserializer implements JsonDeserializer<Schedule> {
 
-        //TODO: handle wrong schedule format exceptions
-
-        @Override
-        public Schedule deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            JsonObject scheduleJson = json.getAsJsonObject();
-            Schedule.Repeat repeat = Schedule.Repeat.valueOf(scheduleJson.get("repeat").getAsString()); // TODO: manage IllegalArgumentException
-            float temperature = scheduleJson.get("setTemp").getAsFloat();
-            int sH = scheduleJson.get("sH").getAsInt();
-            int sM = scheduleJson.get("sM").getAsInt();
-            int eH = scheduleJson.get("eH").getAsInt();
-            int eM = scheduleJson.get("eM").getAsInt();
-            Date startDate, endDate;
-            int[] weekDays = new int[]{};
-            Calendar cal = Calendar.getInstance();
-            switch (repeat) {
-                case Weekly:
-                    weekDays = context.deserialize(scheduleJson.get("weekDays").getAsJsonArray(), int[].class);
-                case Daily:
-                    cal.set(Calendar.HOUR_OF_DAY, sH);
-                    cal.set(Calendar.MINUTE, sM);
-                    startDate = cal.getTime();
-                    cal.clear();
-                    cal.set(Calendar.HOUR_OF_DAY, eH);
-                    cal.set(Calendar.MINUTE, eM);
-                    endDate = cal.getTime();
-                    break;
-                case Once:
-                    int sY = scheduleJson.get("sY").getAsInt();
-                    int sMth = scheduleJson.get("sMth").getAsInt();
-                    int sD = scheduleJson.get("sD").getAsInt();
-                    int eY = scheduleJson.get("eY").getAsInt();
-                    int eMth = scheduleJson.get("eMth").getAsInt();
-                    int eD = scheduleJson.get("eD").getAsInt();
-                    cal.set(sY, sMth, sD, sH, sM);
-                    startDate = cal.getTime();
-                    cal.clear();
-                    cal.set(eY, eMth, eD, eH, eM);
-                    endDate = cal.getTime();
-                    break;
-                default: // to suppress variable might not be initialized warning
-                    startDate = new Date();
-                    endDate = new Date();
-            }
-            return new Schedule(repeat, temperature, startDate, endDate, weekDays);
-        }
-    }
 
 }

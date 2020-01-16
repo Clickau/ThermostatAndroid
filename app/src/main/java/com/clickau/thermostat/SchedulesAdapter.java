@@ -52,12 +52,14 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
     public void onBindViewHolder(@NonNull SchedulesViewHolder holder, int position) {
         Schedule schedule = schedules.get(position);
 
+        //TODO: Ask for preferred temperature scale or get it from system
         holder.temperatureTextView.setText(String.format(Locale.US,"%.1f°C", schedule.getTemperature()));
         holder.repeatTextView.setText(schedule.getRepeat().toString());
-        holder.startTextView.setText(String.format(Locale.US, "Start: %s", schedule.getStartString()));
-        holder.endTextView.setText(String.format(Locale.US, "End: %s", schedule.getEndString()));
+        holder.startTextView.setText(String.format(Locale.US, App.getRes().getString(R.string.schedules_start) + ": %s", schedule.getStartString()));
+        holder.endTextView.setText(String.format(Locale.US, App.getRes().getString(R.string.schedules_end) + ": %s", schedule.getEndString()));
         if (schedules.get(position).getRepeat().equals(Schedule.Repeat.Weekly)) {
-            StringBuilder weekdayBuilder = new StringBuilder("On: ");
+            StringBuilder weekdayBuilder = new StringBuilder(App.getRes().getString(R.string.schedules_weekdays_on));
+            weekdayBuilder.append(": ");
             String[] weekdayStrings = new DateFormatSymbols(Locale.getDefault()).getShortWeekdays(); // index 1 is Sunday, index 2 is Monday etc (as specified by Calendar.MONDAY etc)
             int[] weekdays = schedule.getWeekdays();
             for (int i = 0; i < weekdays.length; i++) {

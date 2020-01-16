@@ -30,4 +30,12 @@
     <string name="setup_firebase_io_exception">IO Exception</string>
     <string name="setup_firebase_server_error">Server Error</string>
     <string name="schedules_menu_refresh">Refresh</string>
+    <string name="schedules_repeat_daily">Daily</string>
+    <string name="schedules_repeat_weekly">Weekly</string>
+    <string name="schedules_repeat_once">Once</string>
+    <string name="schedules_start">Start</string>
+    <string name="schedules_end">End</string>
+    <string name="schedules_weekdays_on">On</string>
+    <string name="schedules_invalid_schedules_singular">There was 1 invalid schedule in the database. It is not included in the list and will be overwritten if you submit any changes</string>
+    <string name="schedules_invalid_schedules_plural">There were %d invalid schedules in the database. They are not included in the list and will be overwritten if you submit any changes</string>
 </resources>
