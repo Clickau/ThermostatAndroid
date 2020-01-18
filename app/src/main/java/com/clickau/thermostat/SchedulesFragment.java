@@ -1,5 +1,6 @@
 package com.clickau.thermostat;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -10,7 +11,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -95,11 +95,12 @@ public class SchedulesFragment extends Fragment {
                         Log.d(TAG, String.format("Invalid Schedules: %d", invalidSchedules));
                         if (invalidSchedules != 0) {
                             //TODO: Use a textview above the recyclerview to display this error (and maybe others)
-                            Snackbar snackbar = Snackbar.make(getActivity().findViewById(android.R.id.content), invalidSchedules == 1 ? getString(R.string.schedules_invalid_schedules_singular) : String.format(Locale.US, getString(R.string.schedules_invalid_schedules_plural), invalidSchedules), Snackbar.LENGTH_LONG);
-                            TextView textView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
-                            textView.setMaxLines(3);
-                            snackbar.show();
-
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Invalid Schedules")
+                                    .setMessage(invalidSchedules == 1 ? getString(R.string.schedules_invalid_schedules_singular) : String.format(Locale.US, getString(R.string.schedules_invalid_schedules_plural), invalidSchedules))
+                                    .setCancelable(true)
+                                    .setPositiveButton("OK", null)
+                                    .create().show();
                         }
                         listAdapter.updateSchedules(map.values());
                         break;
