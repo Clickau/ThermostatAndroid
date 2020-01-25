@@ -19,8 +19,7 @@
 
         <activity
             android:name=".SetupFirebaseActivity"
-            android:label="@string/title_activity_setup_firebase"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".SetupWifiActivity"
             android:parentActivityName=".MainActivity" />
