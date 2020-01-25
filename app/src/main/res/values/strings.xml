@@ -28,6 +28,7 @@
     <string name="setup_firebase_submit_button_text">Submit</string>
     <string name="setup_firebase_invalid_url">Invalid URL</string>
     <string name="setup_firebase_invalid_secret">Invalid Secret</string>
+    <string name="setup_firebase_invalid_schedules_path">Invalid Path</string>
     <string name="setup_firebase_success">Success</string>
     <string name="setup_firebase_database_not_found">Database not found. Check your URL</string>
     <string name="setup_firebase_unauthorized">Unauthorized to access database. Check your secret</string>
@@ -40,8 +41,11 @@
     <string name="schedules_start">Start</string>
     <string name="schedules_end">End</string>
     <string name="schedules_weekdays_on">On</string>
+    <string name="schedules_invalid_schedules_message_title">Invalid Schedules</string>
     <plurals name="schedules_invalid_schedules">
         <item quantity="one">There was %d invalid schedule in the database. It is not included in the list and will be overwritten if you submit any changes</item>
         <item quantity="other">There were %d invalid schedules in the database. They are not included in the list and will be overwritten if you submit any changes</item>
     </plurals>
+    <string name="schedules_invalid_data_message_title">Invalid Data</string>
+    <string name="schedules_invalid_data">The data found at the specified path is not in the right format and will be overwritten if you submit any changes</string>
 </resources>

@@ -23,6 +23,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -75,7 +76,7 @@ public class SchedulesFragment extends Fragment {
     private void RefreshList() {
         Log.d(TAG, "Refreshing Schedules list");
 
-        FirebaseService.get(getContext(), "/Program", new ResultReceiver(new Handler()) { // TODO: Ask for path to the schedules in Setup Firebase
+        FirebaseService.getSchedules(getContext(), new ResultReceiver(new Handler()) {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
 
@@ -88,7 +89,19 @@ public class SchedulesFragment extends Fragment {
                         Log.d(TAG, String.format("ScheduleString: %s", str));
                         Gson gson = new GsonBuilder().registerTypeAdapter(Schedule.class, new Schedule.Deserializer()).create();
                         Type mapType = new TypeToken<Map<String, Schedule>>() {}.getType();
-                        Map<String, Schedule> map = gson.fromJson(str, mapType);
+                        Map<String, Schedule> map = null;
+                        try {
+                            map = gson.fromJson(str, mapType);
+                        } catch (JsonParseException e) {
+                            e.printStackTrace();
+                            //TODO: Use a TextView above the RecyclerView to display this error (and maybe others)
+                            new AlertDialog.Builder(activity)
+                                    .setTitle(R.string.schedules_invalid_data_message_title)
+                                    .setMessage(R.string.schedules_invalid_data)
+                                    .setCancelable(true)
+                                    .setPositiveButton("OK", null)
+                                    .create().show();
+                        }
                         int invalidSchedules = 0;
                         if (map == null)
                             map = Collections.emptyMap();
@@ -103,7 +116,7 @@ public class SchedulesFragment extends Fragment {
                         if (invalidSchedules != 0) {
                             //TODO: Use a TextView above the RecyclerView to display this error (and maybe others)
                             new AlertDialog.Builder(activity)
-                                    .setTitle("Invalid Schedules")
+                                    .setTitle(R.string.schedules_invalid_schedules_message_title)
                                     //.setMessage(invalidSchedules == 1 ? getString(R.string.schedules_invalid_schedules_singular) : String.format(Locale.US, getString(R.string.schedules_invalid_schedules_plural), invalidSchedules))
                                     .setMessage(getResources().getQuantityString(R.plurals.schedules_invalid_schedules, invalidSchedules, invalidSchedules))
                                     .setCancelable(true)

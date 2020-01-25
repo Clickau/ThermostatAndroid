@@ -28,10 +28,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         SharedPreferences pref = getSharedPreferences("firebase_credentials", Context.MODE_PRIVATE);
         final String firebaseUrl = pref.getString("url", null);
         final String firebaseSecret = pref.getString("secret", null);
-        if (firebaseUrl != null && firebaseSecret != null) {
-            FirebaseService.initialize(firebaseUrl, firebaseSecret);
-            Log.d(TAG, "Firebase URL: " + firebaseUrl);
-            Log.d(TAG, "Firebase Secret: " + firebaseSecret);
+        final String schedulesPath = pref.getString("schedules_path", null);
+        if (firebaseUrl != null && firebaseSecret != null && schedulesPath != null) {
+            FirebaseService.initialize(firebaseUrl, firebaseSecret, schedulesPath);
         } else {
             Log.d(TAG, "Firebase not initialized");
             finish();

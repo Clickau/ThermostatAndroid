@@ -36,17 +36,23 @@ public class FirebaseService extends IntentService {
 
     private static String firebaseUrl = null;
     private static String firebaseSecret = null;
+    private static String firebaseSchedulesPath = null;
     private static boolean initialized = false;
 
-    public static void initialize(String url, String secret) {
+    public static void initialize(String url, String secret, String schedulesPath) {
         firebaseUrl = url;
         firebaseSecret = secret;
+        firebaseSchedulesPath = schedulesPath;
         initialized = true;
     }
 
 
     public FirebaseService() {
         super(TAG);
+    }
+
+    public static void getSchedules(Context context, ResultReceiver receiver) {
+        get(context, firebaseSchedulesPath, receiver);
     }
 
     public static void set(Context context, String path, String data, ResultReceiver receiver) {
