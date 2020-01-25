@@ -15,15 +15,15 @@ import java.util.Locale;
 
 public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.SchedulesViewHolder> {
 
-    private ArrayList<Schedule> schedules;
+    private final ArrayList<Schedule> schedules;
 
     public static class SchedulesViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView temperatureTextView;
-        private TextView repeatTextView;
-        private TextView startTextView;
-        private TextView endTextView;
-        private TextView weekdaysTextView;
+        private final TextView temperatureTextView;
+        private final TextView repeatTextView;
+        private final TextView startTextView;
+        private final TextView endTextView;
+        private final TextView weekdaysTextView;
 
         private SchedulesViewHolder(@NonNull View itemView) {
             super(itemView);

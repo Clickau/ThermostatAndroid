@@ -1,5 +1,6 @@
 package com.clickau.thermostat;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,8 +27,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
 
 public class SchedulesFragment extends Fragment {
@@ -49,7 +50,7 @@ public class SchedulesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        swipeRefreshLayout = getActivity().findViewById(R.id.fragment_schedules_swipe_refresh_layout);
+        swipeRefreshLayout = view.findViewById(R.id.fragment_schedules_swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -59,7 +60,7 @@ public class SchedulesFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        recyclerView = getActivity().findViewById(R.id.fragment_schedules_recycler_view);
+        recyclerView = view.findViewById(R.id.fragment_schedules_recycler_view);
         recyclerView.setHasFixedSize(true);
 
         layoutManager = new LinearLayoutManager(getContext());
@@ -71,12 +72,16 @@ public class SchedulesFragment extends Fragment {
         RefreshList();
     }
 
-    public void RefreshList() {
+    private void RefreshList() {
         Log.d(TAG, "Refreshing Schedules list");
 
         FirebaseService.get(getContext(), "/Program", new ResultReceiver(new Handler()) { // TODO: Ask for path to the schedules in Setup Firebase
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+                Activity activity = getActivity();
+                if (activity == null) return;
+
                 switch (resultCode) {
                     case FirebaseService.RESULT_SUCCESS:
                         String str = resultData.getString("result");
@@ -85,6 +90,8 @@ public class SchedulesFragment extends Fragment {
                         Type mapType = new TypeToken<Map<String, Schedule>>() {}.getType();
                         Map<String, Schedule> map = gson.fromJson(str, mapType);
                         int invalidSchedules = 0;
+                        if (map == null)
+                            map = Collections.emptyMap();
                         for (Iterator<Schedule> it = map.values().iterator(); it.hasNext();) {
                             Schedule schedule = it.next();
                             if (schedule == null) {
@@ -94,10 +101,11 @@ public class SchedulesFragment extends Fragment {
                         }
                         Log.d(TAG, String.format("Invalid Schedules: %d", invalidSchedules));
                         if (invalidSchedules != 0) {
-                            //TODO: Use a textview above the recyclerview to display this error (and maybe others)
-                            new AlertDialog.Builder(getContext())
+                            //TODO: Use a TextView above the RecyclerView to display this error (and maybe others)
+                            new AlertDialog.Builder(activity)
                                     .setTitle("Invalid Schedules")
-                                    .setMessage(invalidSchedules == 1 ? getString(R.string.schedules_invalid_schedules_singular) : String.format(Locale.US, getString(R.string.schedules_invalid_schedules_plural), invalidSchedules))
+                                    //.setMessage(invalidSchedules == 1 ? getString(R.string.schedules_invalid_schedules_singular) : String.format(Locale.US, getString(R.string.schedules_invalid_schedules_plural), invalidSchedules))
+                                    .setMessage(getResources().getQuantityString(R.plurals.schedules_invalid_schedules, invalidSchedules, invalidSchedules))
                                     .setCancelable(true)
                                     .setPositiveButton("OK", null)
                                     .create().show();
@@ -105,19 +113,19 @@ public class SchedulesFragment extends Fragment {
                         listAdapter.updateSchedules(map.values());
                         break;
                     case FirebaseService.RESULT_DATABASE_NOT_FOUND:
-                        Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.setup_firebase_database_not_found, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(android.R.id.content), R.string.setup_firebase_database_not_found, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_MALFORMED_URL:
-                        Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.setup_firebase_invalid_url, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(android.R.id.content), R.string.setup_firebase_invalid_url, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_UNAUTHORIZED:
-                        Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.setup_firebase_unauthorized, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(android.R.id.content), R.string.setup_firebase_unauthorized, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_IO_EXCEPTION:
-                        Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.setup_firebase_io_exception, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(android.R.id.content), R.string.setup_firebase_io_exception, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_SERVER_ERROR:
-                        Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.setup_firebase_server_error, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(android.R.id.content), R.string.setup_firebase_server_error, Snackbar.LENGTH_LONG).show();
                         break;
                 }
                 swipeRefreshLayout.setRefreshing(false);

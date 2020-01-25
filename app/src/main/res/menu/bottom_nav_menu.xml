@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_dashboard"
             android:icon="@drawable/ic_dashboard_black_24dp"
-            android:title="Dashboard" />
+            android:title="@string/bottom_nav_dashboard" />
         <item
             android:id="@+id/nav_schedules"
             android:icon="@drawable/ic_schedule_black_24dp"
-            android:title="Schedules" />
+            android:title="@string/bottom_nav_schedules" />
         <item
             android:id="@+id/nav_more"
             android:icon="@drawable/ic_more_black_24dp"
-            android:title="More" />
+            android:title="@string/bottom_nav_more" />
     </group>
 
 </menu>

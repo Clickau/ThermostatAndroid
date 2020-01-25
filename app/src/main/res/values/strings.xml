@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Thermostat</string>
+    <string name="bottom_nav_dashboard">Dashboard</string>
+    <string name="bottom_nav_schedules">Schedules</string>
+    <string name="bottom_nav_more">More</string>
     <string name="more_setup_wifi_button_text">Setup Wifi</string>
     <string name="setup_wifi_text">Make sure you are connected to the Thermostat\'s Wifi Network and Mobile Data is turned off. The SSID and password are shown on the Thermostat\'s display.</string>
     <string name="setup_wifi_default_ip">192.168.1.1</string>
@@ -21,6 +24,7 @@
     <string name="setup_firebase_url_hint">Firebase URL</string>
     <string name="setup_firebase_root_domain">.firebaseio.com</string>
     <string name="setup_firebase_secret_key_hint">Secret Key</string>
+    <string name="setup_firebase_schedules_path">Path to Schedules</string>
     <string name="setup_firebase_submit_button_text">Submit</string>
     <string name="setup_firebase_invalid_url">Invalid URL</string>
     <string name="setup_firebase_invalid_secret">Invalid Secret</string>
@@ -36,6 +40,8 @@
     <string name="schedules_start">Start</string>
     <string name="schedules_end">End</string>
     <string name="schedules_weekdays_on">On</string>
-    <string name="schedules_invalid_schedules_singular">There was 1 invalid schedule in the database. It is not included in the list and will be overwritten if you submit any changes</string>
-    <string name="schedules_invalid_schedules_plural">There were %d invalid schedules in the database. They are not included in the list and will be overwritten if you submit any changes</string>
+    <plurals name="schedules_invalid_schedules">
+        <item quantity="one">There was %d invalid schedule in the database. It is not included in the list and will be overwritten if you submit any changes</item>
+        <item quantity="other">There were %d invalid schedules in the database. They are not included in the list and will be overwritten if you submit any changes</item>
+    </plurals>
 </resources>

@@ -15,7 +15,7 @@
         android:usesCleartextTraffic="true">
         <service
             android:name=".FirebaseService"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <activity
             android:name=".SetupFirebaseActivity"

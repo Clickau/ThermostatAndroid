@@ -155,8 +155,8 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
                 switch (resultCode) {
                     case FirebaseService.RESULT_SUCCESS:
                         Toast.makeText(getApplicationContext(), R.string.setup_firebase_success, Toast.LENGTH_SHORT).show();
-                        // the snackbar wouldn't be visible when switching activities
-                        //Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_success, Snackbar.LENGTH_LONG).show();
+                        // the SnackBar wouldn't be visible when switching activities
+                        //SnackBar.make(findViewById(android.R.id.content), R.string.setup_firebase_success, SnackBar.LENGTH_LONG).show();
                         // store url and secret
                         SharedPreferences pref = getSharedPreferences("firebase_credentials", Context.MODE_PRIVATE);
                         pref.edit()
@@ -167,7 +167,7 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
                         finishAffinity();
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
-                        break;
+                        return;
                     case FirebaseService.RESULT_DATABASE_NOT_FOUND:
                         Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_database_not_found, Snackbar.LENGTH_LONG).show();
                         break;
@@ -184,6 +184,11 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
                         Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_server_error, Snackbar.LENGTH_LONG).show();
                         break;
                 }
+
+                SharedPreferences pref = getSharedPreferences("firebase_credentials", Context.MODE_PRIVATE);
+                final String oldUrl = pref.getString("url", null);
+                final String oldSecret = pref.getString("secret", null);
+                FirebaseService.initialize(oldUrl, oldSecret);
             }
         });
     }
