@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,13 +27,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-public class SchedulesFragment extends Fragment {
+public class SchedulesFragment extends Fragment implements SchedulesAdapter.ViewHolderResponder {
 
     private static final String TAG = SchedulesFragment.class.getSimpleName();
 
@@ -66,7 +68,7 @@ public class SchedulesFragment extends Fragment {
 
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        listAdapter = new SchedulesAdapter(new ArrayList<Schedule>());
+        listAdapter = new SchedulesAdapter(new ArrayList<Schedule>(), new WeakReference<SchedulesAdapter.ViewHolderResponder>(this));
         recyclerView.setAdapter(listAdapter);
 
         swipeRefreshLayout.setRefreshing(true);
@@ -163,6 +165,10 @@ public class SchedulesFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onClickOnItem(View v, int position) {
+        Toast.makeText(getContext(), String.format("Item clicked: %d", position), Toast.LENGTH_SHORT).show();
+        Schedule schedule = listAdapter.getItemAt(position);
 
-
+    }
 }

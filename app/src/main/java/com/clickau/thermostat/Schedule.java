@@ -122,15 +122,13 @@ public class Schedule {
 
     public static class Deserializer implements JsonDeserializer<Schedule> {
 
-        //TODO: handle wrong schedule format exceptions
-
         @Override
         public Schedule deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
 
             try {
 
                 JsonObject scheduleJson = json.getAsJsonObject();
-                Schedule.Repeat repeat = Schedule.Repeat.valueOf(scheduleJson.get("repeat").getAsString()); // TODO: manage IllegalArgumentException
+                Schedule.Repeat repeat = Schedule.Repeat.valueOf(scheduleJson.get("repeat").getAsString());
                 float temperature = scheduleJson.get("setTemp").getAsFloat();
                 int sH = scheduleJson.get("sH").getAsInt();
                 int sM = scheduleJson.get("sM").getAsInt();

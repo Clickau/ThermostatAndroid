@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.lang.ref.WeakReference;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,7 +16,9 @@ import java.util.Locale;
 
 public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.SchedulesViewHolder> {
 
-    private final ArrayList<Schedule> schedules;
+    public interface ViewHolderResponder {
+        public void onClickOnItem(View v, int position);
+    }
 
     public static class SchedulesViewHolder extends RecyclerView.ViewHolder {
 
@@ -24,19 +27,33 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
         private final TextView startTextView;
         private final TextView endTextView;
         private final TextView weekdaysTextView;
+        private int position;
+        private WeakReference<ViewHolderResponder> responder;
 
-        private SchedulesViewHolder(@NonNull View itemView) {
+        private SchedulesViewHolder(@NonNull View itemView, final WeakReference<ViewHolderResponder> responder){
             super(itemView);
             temperatureTextView = itemView.findViewById(R.id.schedule_view_temperature_text_view);
             repeatTextView = itemView.findViewById(R.id.schedule_view_repeat_text_view);
             startTextView = itemView.findViewById(R.id.schedule_view_start_text_view);
             endTextView = itemView.findViewById(R.id.schedule_view_end_text_view);
             weekdaysTextView = itemView.findViewById(R.id.schedule_view_weekdays_text_view);
+            this.responder = responder;
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    responder.get().onClickOnItem(v, position);
+                }
+            });
         }
     }
 
-    public SchedulesAdapter(ArrayList<Schedule> schedules) {
+    private final ArrayList<Schedule> schedules;
+    private final WeakReference<ViewHolderResponder> responder;
+
+    public SchedulesAdapter(ArrayList<Schedule> schedules, WeakReference<ViewHolderResponder> responder) {
         this.schedules = schedules;
+        this.responder = responder;
     }
 
     @NonNull
@@ -45,7 +62,7 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
 
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.schedule_view, parent, false);
 
-        return new SchedulesViewHolder(view);
+        return new SchedulesViewHolder(view, responder);
     }
 
     @Override
@@ -73,6 +90,7 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
         } else {
             holder.weekdaysTextView.setVisibility(View.GONE);
         }
+        holder.position = position;
     }
 
     @Override
@@ -84,5 +102,9 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
         schedules.clear();
         schedules.addAll(newSchedules);
         notifyDataSetChanged();
+    }
+
+    public Schedule getItemAt(int position) {
+        return schedules.get(position);
     }
 }
