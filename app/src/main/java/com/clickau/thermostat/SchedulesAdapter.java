@@ -49,7 +49,7 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
 
         private void bind(@NonNull Schedule schedule, int position) {
             //TODO: Ask for preferred temperature scale or get it from system
-            temperatureTextView.setText(String.format(Locale.US,"%.1f°C", schedule.getTemperature()));
+            temperatureTextView.setText(String.format(Locale.getDefault(),"%.1f°C", schedule.getTemperature()));
             repeatTextView.setText(schedule.getRepeat().toString());
             startTextView.setText(String.format(Locale.US, App.getRes().getString(R.string.schedules_start) + ": %s", schedule.getStartString()));
             endTextView.setText(String.format(Locale.US, App.getRes().getString(R.string.schedules_end) + ": %s", schedule.getEndString()));

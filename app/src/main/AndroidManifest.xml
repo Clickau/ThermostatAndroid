@@ -13,9 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <service
-            android:name=".FirebaseService"
-            android:exported="false" />
+
+        <activity
+            android:name=".ModifyScheduleActivity"
+            android:exported="false"/>
 
         <activity
             android:name=".SetupFirebaseActivity"
@@ -34,6 +35,11 @@
         <service
             android:name=".SetupWifiActivity$SendRequestIntentService"
             android:exported="false" />
+
+        <service
+            android:name=".FirebaseService"
+            android:exported="false" />
+
     </application>
 
 </manifest>

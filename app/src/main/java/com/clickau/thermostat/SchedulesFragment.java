@@ -2,6 +2,7 @@ package com.clickau.thermostat;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -101,7 +102,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
                                     .setTitle(R.string.schedules_invalid_data_message_title)
                                     .setMessage(R.string.schedules_invalid_data)
                                     .setCancelable(true)
-                                    .setPositiveButton("OK", null)
+                                    .setPositiveButton(android.R.string.ok, null)
                                     .create().show();
                         }
                         int invalidSchedules = 0;
@@ -122,7 +123,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
                                     //.setMessage(invalidSchedules == 1 ? getString(R.string.schedules_invalid_schedules_singular) : String.format(Locale.US, getString(R.string.schedules_invalid_schedules_plural), invalidSchedules))
                                     .setMessage(getResources().getQuantityString(R.plurals.schedules_invalid_schedules, invalidSchedules, invalidSchedules))
                                     .setCancelable(true)
-                                    .setPositiveButton("OK", null)
+                                    .setPositiveButton(android.R.string.ok, null)
                                     .create().show();
                         }
                         listAdapter.updateSchedules(map.values());
@@ -169,6 +170,8 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     public void onClickOnItem(View v, int position) {
         Toast.makeText(getContext(), String.format("Item clicked: %d", position), Toast.LENGTH_SHORT).show();
         Schedule schedule = listAdapter.getItemAt(position);
-
+        Intent intent = new Intent(getContext(), ModifyScheduleActivity.class);
+        intent.putExtra("schedule", schedule);
+        startActivity(intent);
     }
 }

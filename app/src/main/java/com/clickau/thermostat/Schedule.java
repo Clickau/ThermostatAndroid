@@ -1,5 +1,8 @@
 package com.clickau.thermostat;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 
 import com.google.gson.JsonDeserializationContext;
@@ -14,7 +17,39 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class Schedule {
+public class Schedule implements Parcelable {
+
+    public static final Creator<Schedule> CREATOR = new Creator<Schedule>() {
+        @Override
+        public Schedule createFromParcel(Parcel in) {
+            Repeat repeat = Repeat.values()[in.readInt()];
+            float temperature = in.readFloat();
+            Date start = new Date(in.readLong());
+            Date end = new Date(in.readLong());
+            int[] weekdays = in.createIntArray();
+            return new Schedule(repeat, temperature, start, end, weekdays);
+        }
+
+        @Override
+        public Schedule[] newArray(int size) {
+            return new Schedule[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+        dest.writeInt(repeat.ordinal());
+        dest.writeFloat(temperature);
+        dest.writeLong(start.getTime());
+        dest.writeLong(end.getTime());
+        dest.writeIntArray(weekdays);
+    }
 
     public enum Repeat {
         Once {
@@ -52,46 +87,6 @@ public class Schedule {
         this.setTemperature(temperature);
         this.setStart(start);
         this.setEnd(end);
-    }
-
-    public int[] getWeekdays() {
-        return weekdays;
-    }
-
-    public void setWeekdays(int[] weekdays) {
-        this.weekdays = weekdays;
-    }
-
-    public Repeat getRepeat() {
-        return repeat;
-    }
-
-    public void setRepeat(Repeat repeat) {
-        this.repeat = repeat;
-    }
-
-    public float getTemperature() {
-        return temperature;
-    }
-
-    public void setTemperature(float temperature) {
-        this.temperature = temperature;
-    }
-
-    public Date getStart() {
-        return start;
-    }
-
-    public void setStart(Date start) {
-        this.start = start;
-    }
-
-    public Date getEnd() {
-        return end;
-    }
-
-    public void setEnd(Date end) {
-        this.end = end;
     }
 
     public String getStartString() {
@@ -137,6 +132,7 @@ public class Schedule {
                 Date startDate, endDate;
                 int[] weekDays = new int[]{};
                 Calendar cal = Calendar.getInstance();
+                cal.clear();
                 switch (repeat) {
                     case Weekly:
                         weekDays = context.deserialize(scheduleJson.get("weekDays").getAsJsonArray(), int[].class);
@@ -173,5 +169,48 @@ public class Schedule {
                 return null;
             }
         }
+    }
+
+
+    // Getters and setters
+
+    public int[] getWeekdays() {
+        return weekdays;
+    }
+
+    public void setWeekdays(int[] weekdays) {
+        this.weekdays = weekdays;
+    }
+
+    public Repeat getRepeat() {
+        return repeat;
+    }
+
+    public void setRepeat(Repeat repeat) {
+        this.repeat = repeat;
+    }
+
+    public float getTemperature() {
+        return temperature;
+    }
+
+    public void setTemperature(float temperature) {
+        this.temperature = temperature;
+    }
+
+    public Date getStart() {
+        return start;
+    }
+
+    public void setStart(Date start) {
+        this.start = start;
+    }
+
+    public Date getEnd() {
+        return end;
+    }
+
+    public void setEnd(Date end) {
+        this.end = end;
     }
 }

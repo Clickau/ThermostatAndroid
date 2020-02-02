@@ -48,4 +48,5 @@
     </plurals>
     <string name="schedules_invalid_data_message_title">Invalid Data</string>
     <string name="schedules_invalid_data">The data found at the specified path is not in the right format and will be overwritten if you submit any changes</string>
+    <string name="dialog_temperature_picker_title">Pick temperature</string>
 </resources>
