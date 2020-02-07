@@ -21,6 +21,17 @@
         <item name="iconTint">@color/darkGrey</item>
     </style>
 
+    <style name="AppTheme.Button.TextButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline3</item>
+        <item name="android:textAlignment">textStart</item>
+        <item name="iconPadding">20dp</item>
+        <item name="iconTint">@color/darkGrey</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -29,5 +40,11 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="LineSeparator">
+        <item name="android:layout_height">0.5dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@android:color/darker_gray</item>
+    </style>
 
 </resources>
