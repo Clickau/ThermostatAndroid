@@ -72,6 +72,14 @@ public class Schedule implements Parcelable {
             public String toString() {
                 return App.getRes().getString(R.string.schedules_repeat_weekly);
             }
+        };
+
+        public static String[] getStrings() {
+            final String[] strings = new String[values().length];
+            for (int i = 0; i < values().length; i++) {
+                strings[i] = values()[i].toString();
+            }
+            return strings;
         }
     }
 
@@ -92,7 +100,7 @@ public class Schedule implements Parcelable {
     public String getStartString() {
         switch (repeat) {
             case Once:
-                DateFormat format = SimpleDateFormat.getDateTimeInstance(DateFormat.LONG,  DateFormat.SHORT);
+                DateFormat format = SimpleDateFormat.getDateTimeInstance(DateFormat.FULL,  DateFormat.SHORT);
                 return format.format(start);
             case Daily:
             case Weekly:
@@ -105,7 +113,7 @@ public class Schedule implements Parcelable {
     public String getEndString() {
         switch (repeat) {
             case Once:
-                DateFormat format = SimpleDateFormat.getDateTimeInstance(DateFormat.LONG,  DateFormat.SHORT);
+                DateFormat format = SimpleDateFormat.getDateTimeInstance(DateFormat.FULL,  DateFormat.SHORT);
                 return format.format(end);
             case Daily:
             case Weekly:

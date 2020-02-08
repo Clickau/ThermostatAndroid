@@ -5,4 +5,5 @@
     <color name="colorAccent">@color/colorPrimary</color>
 
     <color name="darkGrey">#606060</color>
+    <color name="errorRed">@android:color/holo_red_dark</color>
 </resources>

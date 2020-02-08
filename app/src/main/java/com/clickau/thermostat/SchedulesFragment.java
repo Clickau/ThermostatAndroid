@@ -13,7 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,6 +37,7 @@ import java.util.Map;
 public class SchedulesFragment extends Fragment implements SchedulesAdapter.ViewHolderResponder {
 
     private static final String TAG = SchedulesFragment.class.getSimpleName();
+    private static final int MODIFY_SCHEDULE_ACTIVITY_RESULT_CODE = 0;
 
     private RecyclerView recyclerView;
     private SchedulesAdapter listAdapter;
@@ -168,10 +168,19 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
 
     @Override
     public void onClickOnItem(View v, int position) {
-        Toast.makeText(getContext(), String.format("Item clicked: %d", position), Toast.LENGTH_SHORT).show();
         Schedule schedule = listAdapter.getItemAt(position);
         Intent intent = new Intent(getContext(), ModifyScheduleActivity.class);
         intent.putExtra("schedule", schedule);
-        startActivity(intent);
+        intent.putExtra("position", position);
+        startActivityForResult(intent, MODIFY_SCHEDULE_ACTIVITY_RESULT_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == MODIFY_SCHEDULE_ACTIVITY_RESULT_CODE && data != null) {
+            Schedule schedule = data.getParcelableExtra("schedule");
+            int position = data.getIntExtra("position", -1);
+            listAdapter.setItemAt(position, schedule);
+        }
     }
 }

@@ -16,23 +16,15 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/modify_schedule_temperature_text_view"
+        android:id="@+id/modify_schedule_temperature_button"
         style="@style/AppTheme.Button.TextButton"
         app:icon="@drawable/ic_thermometer_black_24"
         android:textSize="26sp"
         android:text="20.5°C" />
 
-    <Spinner
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:id="@+id/modify_schedule_repeat_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"/>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/modify_schedule_repeat_spinner1"
+        android:id="@+id/modify_schedule_repeat_button"
         style="@style/AppTheme.Button.TextButton"
         app:icon="@drawable/ic_repeat_black_24dp"
         android:text="Once" />
@@ -49,18 +41,21 @@
 
 
     <LinearLayout
+        android:id="@+id/modify_schedule_start_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/modify_schedule_start_time_button"
             style="@style/AppTheme.Button.TextButton"
             android:layout_width="0dp"
-            android:layout_weight="5"
+            android:layout_weight="4"
             android:text="08:00"
             app:icon="@drawable/ic_schedule_black_24dp"/>
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/modify_schedule_start_date_button"
             style="@style/AppTheme.Button.TextButton"
             android:layout_width="0dp"
             android:layout_weight="7"
@@ -70,18 +65,21 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/modify_schedule_end_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginStart="44dp">
+        android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/modify_schedule_end_time_button"
             style="@style/AppTheme.Button.TextButton"
             android:layout_width="0dp"
-            android:layout_weight="5"
-            android:text="10:00" />
+            android:layout_weight="4"
+            android:text="10:00"
+            android:paddingStart="54dp"/>
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/modify_schedule_end_date_button"
             style="@style/AppTheme.Button.TextButton"
             android:layout_width="0dp"
             android:layout_weight="7"
@@ -89,29 +87,5 @@
             android:textAlignment="textEnd"/>
 
     </LinearLayout>
-
-    <TextView
-        android:visibility="gone"
-        android:id="@+id/modify_schedule_start_text_view"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        android:text="Start: 8:00" />
-
-    <TextView
-        android:visibility="gone"
-        android:id="@+id/modify_schedule_end_text_view"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        android:text="End: 16:00" />
-
-
 
 </LinearLayout>

@@ -110,4 +110,9 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
     public Schedule getItemAt(int position) {
         return schedules.get(position);
     }
+
+    public void setItemAt(int position, Schedule newSchedule) {
+        schedules.set(position, newSchedule);
+        notifyItemChanged(position);
+    }
 }

@@ -1,22 +1,31 @@
 package com.clickau.thermostat;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
-import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
+
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,13 +35,19 @@ public class ModifyScheduleActivity extends AppCompatActivity {
 
     private static final String TAG = ModifyScheduleActivity.class.getSimpleName();
 
-    private TextView temperatureTextView;
-    private Spinner repeatSpinner;
+    private MaterialButton temperatureButton;
+    private MaterialButton repeatButton;
     private LinearLayout weekdaysLayout;
-    private TextView startTextView;
-    private TextView endTextView;
+    private MaterialButton startTimeButton;
+    private MaterialButton startDateButton;
+    private MaterialButton endTimeButton;
+    private MaterialButton endDateButton;
 
     private Schedule schedule;
+    private int position;
+    private java.text.DateFormat dateFormat = SimpleDateFormat.getDateInstance(java.text.DateFormat.FULL);
+    private java.text.DateFormat timeFormat = SimpleDateFormat.getTimeInstance(java.text.DateFormat.SHORT);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,14 +61,17 @@ public class ModifyScheduleActivity extends AppCompatActivity {
         if (actionBar != null)
             actionBar.setDisplayHomeAsUpEnabled(true);
 
-        temperatureTextView = findViewById(R.id.modify_schedule_temperature_text_view);
-        repeatSpinner = findViewById(R.id.modify_schedule_repeat_spinner);
+        temperatureButton = findViewById(R.id.modify_schedule_temperature_button);
+        repeatButton = findViewById(R.id.modify_schedule_repeat_button);
         weekdaysLayout = findViewById(R.id.modify_schedule_weekdays_layout);
-        startTextView = findViewById(R.id.modify_schedule_start_text_view);
-        endTextView = findViewById(R.id.modify_schedule_end_text_view);
+        startTimeButton = findViewById(R.id.modify_schedule_start_time_button);
+        startDateButton = findViewById(R.id.modify_schedule_start_date_button);
+        endTimeButton = findViewById(R.id.modify_schedule_end_time_button);
+        endDateButton = findViewById(R.id.modify_schedule_end_date_button);
 
         schedule = getIntent().getParcelableExtra("schedule");
-        if (schedule == null) {
+        position = getIntent().getIntExtra("position", -1);
+        if (schedule == null || position == -1) {
             finish();
             return;
         }
@@ -70,7 +88,6 @@ public class ModifyScheduleActivity extends AppCompatActivity {
             Calendar currentCal = Calendar.getInstance();
             currentCal.set(Calendar.SECOND, 0);
             currentCal.set(Calendar.MILLISECOND, 0);
-            currentCal.set(Calendar.HOUR_OF_DAY, 1);
 
             Calendar cal = Calendar.getInstance();
             cal.setTime(startDate);
@@ -84,81 +101,261 @@ public class ModifyScheduleActivity extends AppCompatActivity {
             schedule.setEnd(currentCal.getTime());
         }
 
-        temperatureTextView.setText(String.format(Locale.getDefault(),"%.1f°C", schedule.getTemperature()));
-        temperatureTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Temperature click");
-                View dialogView = getLayoutInflater().inflate(R.layout.dialog_temperature_picker, null);
-                AlertDialog.Builder builder = new AlertDialog.Builder(ModifyScheduleActivity.this)
-                        .setTitle(R.string.dialog_temperature_picker_title)
-                        .setView(dialogView);
-                final NumberPicker primary = dialogView.findViewById(R.id.dialog_temperature_picker_primary_picker);
-                final NumberPicker secondary = dialogView.findViewById(R.id.dialog_temperature_picker_secondary_picker);
-                final TextView separator = dialogView.findViewById(R.id.dialog_temperature_picker_separator);
-                primary.setMinValue(5);
-                primary.setMaxValue(40);
-                primary.setWrapSelectorWheel(false);
-                primary.setValue(20);
-                secondary.setMinValue(0);
-                secondary.setMaxValue(9);
-                secondary.setWrapSelectorWheel(true);
-                separator.setText(String.valueOf(DecimalFormatSymbols.getInstance().getDecimalSeparator()));
-                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        float result = primary.getValue() + (float) secondary.getValue() / 10;
-                        Log.d(TAG, String.format("Temperature: %f", result));
-                        schedule.setTemperature(result);
-                        temperatureTextView.setText(String.format(Locale.getDefault(),"%.1f°C", schedule.getTemperature()));
-                    }
-                });
-                builder.setNegativeButton(android.R.string.cancel, null)
-                    .create().show();
-            }
-        });
+        temperatureButton.setText(String.format(Locale.getDefault(),"%.1f°C", schedule.getTemperature()));
+        temperatureButton.setOnClickListener(new TemperatureButtonOnClickListener());
 
-        Schedule.Repeat[] values = Schedule.Repeat.values();
-        String[] strings = new String[values.length];
-        for (int i = 0; i < values.length; i++) {
-            strings[i] = values[i].toString();
+        repeatButton.setText(schedule.getRepeat().toString());
+        repeatButton.setOnClickListener(new RepeatButtonOnClickListener());
+
+        switch (schedule.getRepeat()) {
+            case Once:
+                weekdaysLayout.setVisibility(View.GONE);
+                startDateButton.setVisibility(View.VISIBLE);
+                endDateButton.setVisibility(View.VISIBLE);
+                break;
+            case Daily:
+                weekdaysLayout.setVisibility(View.GONE);
+                startDateButton.setVisibility(View.GONE);
+                endDateButton.setVisibility(View.GONE);
+                break;
+            case Weekly:
+                weekdaysLayout.setVisibility(View.VISIBLE);
+                startDateButton.setVisibility(View.GONE);
+                endDateButton.setVisibility(View.GONE);
+                break;
         }
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, strings);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        repeatSpinner.setAdapter(spinnerAdapter);
-        repeatSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Schedule.Repeat selected = Schedule.Repeat.values()[position];
-                schedule.setRepeat(selected);
-                switch (selected) {
-                    case Once:
-                    case Daily:
-                        weekdaysLayout.setVisibility(View.GONE);
-                        break;
-                    case Weekly:
-                        weekdaysLayout.setVisibility(View.VISIBLE);
-                        break;
-                }
-                startTextView.setText(String.format(Locale.US, getString(R.string.schedules_start) + ": %s", schedule.getStartString()));
-                endTextView.setText(String.format(Locale.US, getString(R.string.schedules_end) + ": %s", schedule.getEndString()));
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+        startTimeButton.setText(timeFormat.format(schedule.getStart()));
+        startDateButton.setText(dateFormat.format(schedule.getStart()));
+        endTimeButton.setText(timeFormat.format(schedule.getEnd()));
+        endDateButton.setText(dateFormat.format(schedule.getEnd()));
 
-            }
-        });
-        repeatSpinner.setSelection(schedule.getRepeat().ordinal());
-
-        startTextView.setText(String.format(Locale.US, getString(R.string.schedules_start) + ": %s", schedule.getStartString()));
-        endTextView.setText(String.format(Locale.US, getString(R.string.schedules_end) + ": %s", schedule.getEndString()));
+        startTimeButton.setOnClickListener(new TimeButtonOnClickListener(TimeButtonOnClickListener.START));
+        startDateButton.setOnClickListener(new DateButtonOnClickListener(DateButtonOnClickListener.START));
+        endTimeButton.setOnClickListener(new TimeButtonOnClickListener(TimeButtonOnClickListener.END));
+        endDateButton.setOnClickListener(new DateButtonOnClickListener(DateButtonOnClickListener.END));
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_modify_schedule_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.activity_modify_schedule_menu_save) {
+            if (schedule.getStart().compareTo(schedule.getEnd()) >= 0) {
+                Snackbar.make(findViewById(android.R.id.content), "Start time must be before end time", Snackbar.LENGTH_LONG).show();
+                return true;
+            }
+            if (schedule.getRepeat() != Schedule.Repeat.Once) {
+                // get rid of date, leave only time
+                Date startDate = schedule.getStart();
+                Date endDate = schedule.getEnd();
+                Calendar newCalendar = Calendar.getInstance();
+                newCalendar.clear();
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(startDate);
+                newCalendar.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY));
+                newCalendar.set(Calendar.MINUTE, cal.get(Calendar.MINUTE));
+                schedule.setStart(newCalendar.getTime());
+
+                cal.setTime(endDate);
+                newCalendar.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY));
+                newCalendar.set(Calendar.MINUTE, cal.get(Calendar.MINUTE));
+                schedule.setEnd(newCalendar.getTime());
+            }
+
+            Log.d(TAG, String.format("Repeat: %s", schedule.getRepeat().toString()));
+            Log.d(TAG, String.format("Temp: %f", schedule.getTemperature()));
+            Log.d(TAG, String.format("Start: %s", schedule.getStartString()));
+            Log.d(TAG, String.format("End: %s", schedule.getEndString()));
+            Log.d(TAG, String.format("Weekdays: %s", Arrays.toString(schedule.getWeekdays())));
+
+            Intent result = new Intent();
+            result.putExtra("schedule", schedule);
+            result.putExtra("position", position);
+            setResult(RESULT_OK, result);
+            finish();
+            return true;
+        } else
+            return super.onOptionsItemSelected(item);
+    }
+
+    private class TemperatureButtonOnClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_temperature_picker, null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(ModifyScheduleActivity.this)
+                    .setTitle(R.string.dialog_temperature_picker_title)
+                    .setView(dialogView);
+            final NumberPicker primary = dialogView.findViewById(R.id.dialog_temperature_picker_primary_picker);
+            final NumberPicker secondary = dialogView.findViewById(R.id.dialog_temperature_picker_secondary_picker);
+            final TextView separator = dialogView.findViewById(R.id.dialog_temperature_picker_separator);
+            float temperature = schedule.getTemperature();
+            int temperatureWhole = (int) temperature;
+            int temperatureDecimal = (int) (temperature * 10) - temperatureWhole * 10;
+            primary.setMinValue(5);
+            primary.setMaxValue(40);
+            primary.setWrapSelectorWheel(false);
+            primary.setValue(temperatureWhole);
+            secondary.setMinValue(0);
+            secondary.setMaxValue(9);
+            secondary.setWrapSelectorWheel(true);
+            secondary.setValue(temperatureDecimal);
+            separator.setText(String.valueOf(DecimalFormatSymbols.getInstance().getDecimalSeparator()));
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    float result = primary.getValue() + (float) secondary.getValue() / 10;
+                    schedule.setTemperature(result);
+                    temperatureButton.setText(String.format(Locale.getDefault(),"%.1f°C", schedule.getTemperature()));
+                }
+            });
+            builder.setNegativeButton(android.R.string.cancel, null)
+                    .create().show();
+        }
+    }
+
+    private class RepeatButtonOnClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            new AlertDialog.Builder(ModifyScheduleActivity.this)
+                    .setItems(Schedule.Repeat.getStrings(), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Schedule.Repeat selected = Schedule.Repeat.values()[which];
+                            repeatButton.setText(selected.toString());
+                            schedule.setRepeat(selected);
+                            switch (selected) {
+                                case Once:
+                                    weekdaysLayout.setVisibility(View.GONE);
+                                    startDateButton.setVisibility(View.VISIBLE);
+                                    endDateButton.setVisibility(View.VISIBLE);
+                                    break;
+                                case Daily:
+                                    weekdaysLayout.setVisibility(View.GONE);
+                                    startDateButton.setVisibility(View.GONE);
+                                    endDateButton.setVisibility(View.GONE);
+                                    break;
+                                case Weekly:
+                                    weekdaysLayout.setVisibility(View.VISIBLE);
+                                    startDateButton.setVisibility(View.GONE);
+                                    endDateButton.setVisibility(View.GONE);
+                                    break;
+                            }
+                            startTimeButton.setText(timeFormat.format(schedule.getStart()));
+                            startDateButton.setText(dateFormat.format(schedule.getStart()));
+                            endTimeButton.setText(timeFormat.format(schedule.getEnd()));
+                            endDateButton.setText(dateFormat.format(schedule.getEnd()));
+                        }
+                    })
+                    .create().show();
+        }
+    }
+
+    private class TimeButtonOnClickListener implements  View.OnClickListener {
+
+        private static final int START = 0;
+        private static final int END = 1;
+
+        private final int which;
+
+        private TimeButtonOnClickListener(int which) {
+            this.which = which;
+        }
+
+        @Override
+        public void onClick(View v) {
+            final Calendar calendar = Calendar.getInstance();
+            if (which == START)
+                calendar.setTime(schedule.getStart());
+            else
+                calendar.setTime(schedule.getEnd());
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
+            TimePickerDialog timePickerDialog = new TimePickerDialog(ModifyScheduleActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    calendar.set(Calendar.MINUTE, minute);
+                    if (which == START) {
+                        schedule.setStart(calendar.getTime());
+                        startTimeButton.setText(timeFormat.format(schedule.getStart()));
+                    }
+                    else {
+                        schedule.setEnd(calendar.getTime());
+                        endTimeButton.setText(timeFormat.format(schedule.getEnd()));
+                    }
+                    if (schedule.getStart().compareTo(schedule.getEnd()) >= 0) {
+                        startTimeButton.setTextColor(getResources().getColor(R.color.errorRed));
+                        startDateButton.setTextColor(getResources().getColor(R.color.errorRed));
+                    } else {
+                        startTimeButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
+                        startDateButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
+                    }
+                }
+            }, hour, minute, android.text.format.DateFormat.is24HourFormat(ModifyScheduleActivity.this));
+            timePickerDialog.show();
+        }
+    }
+
+    private class DateButtonOnClickListener implements View.OnClickListener {
+
+        private static final int START = 0;
+        private static final int END = 1;
+
+        private final int which;
+
+        private DateButtonOnClickListener(int which) {
+            this.which = which;
+        }
+
+        @Override
+        public void onClick(View v) {
+            final Calendar calendar = Calendar.getInstance();
+            if (which == START)
+                calendar.setTime(schedule.getStart());
+            else
+                calendar.setTime(schedule.getEnd());
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            DatePickerDialog datePickerDialog = new DatePickerDialog(ModifyScheduleActivity.this, new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                    calendar.set(Calendar.YEAR, year);
+                    calendar.set(Calendar.MONTH, month);
+                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    if (which == START) {
+                        schedule.setStart(calendar.getTime());
+                        startDateButton.setText(dateFormat.format(schedule.getStart()));
+                    }
+                    else {
+                        schedule.setEnd(calendar.getTime());
+                        endDateButton.setText(dateFormat.format(schedule.getEnd()));
+                    }
+                    if (schedule.getStart().compareTo(schedule.getEnd()) >= 0) {
+                        startTimeButton.setTextColor(getResources().getColor(R.color.errorRed));
+                        startDateButton.setTextColor(getResources().getColor(R.color.errorRed));
+                    } else {
+                        startTimeButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
+                        startDateButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
+                    }
+                }
+            }, year, month, day);
+            datePickerDialog.show();
+        }
     }
 
 }
