@@ -31,14 +31,10 @@
 
     <LinearLayout
         android:id="@+id/modify_schedule_weekdays_layout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
         android:orientation="horizontal"
-        android:visibility="gone" />
-
+        android:visibility="visible" />
 
     <LinearLayout
         android:id="@+id/modify_schedule_start_layout"

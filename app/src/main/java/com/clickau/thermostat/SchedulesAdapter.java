@@ -57,13 +57,14 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
                 StringBuilder weekdayBuilder = new StringBuilder(App.getRes().getString(R.string.schedules_weekdays_on));
                 weekdayBuilder.append(": ");
                 String[] weekdayStrings = new DateFormatSymbols(Locale.getDefault()).getShortWeekdays(); // index 1 is Sunday, index 2 is Monday etc (as specified by Calendar.MONDAY etc)
-                int[] weekdays = schedule.getWeekdays();
-                for (int i = 0; i < weekdays.length; i++) {
-                    weekdayBuilder.append(weekdayStrings[weekdays[i]]);
-
-                    if (i != weekdays.length - 1)
+                boolean[] weekdays = schedule.getWeekdays();
+                for (int i = 1; i <= 7; i++) {
+                    if (weekdays[i]) {
+                        weekdayBuilder.append(weekdayStrings[i]);
                         weekdayBuilder.append(", ");
+                    }
                 }
+                weekdayBuilder.delete(weekdayBuilder.length() - 2, weekdayBuilder.length());
                 weekdaysTextView.setText(weekdayBuilder.toString());
                 weekdaysTextView.setVisibility(View.VISIBLE);
             } else {

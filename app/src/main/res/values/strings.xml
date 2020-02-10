@@ -50,4 +50,7 @@
     <string name="schedules_invalid_data">The data found at the specified path is not in the right format and will be overwritten if you submit any changes</string>
     <string name="dialog_temperature_picker_title">Pick temperature</string>
     <string name="modify_schedule_save_action_title">SAVE</string>
+    <string name="modify_schedule_start_not_before_end">Start time must be before end time</string>
+    <string name="modify_schedule_select_at_least_one_weekday">You must select at least one weekday</string>
+    <string name="modify_schedule_turned_into_daily">Schedule was turned into a daily one</string>
 </resources>

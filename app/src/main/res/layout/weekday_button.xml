@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="36dp"
+    android:layout_width="0dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_weight="1">
+    <CheckBox
+        android:id="@+id/weekday_button_checkbox"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="center"
+        android:background="@drawable/weekday_background"
+        android:button="@null"
+        app:buttonCompat="@null"
+        android:gravity="center"
+        android:text="M"
+        android:textSize="16sp" />
+</FrameLayout>

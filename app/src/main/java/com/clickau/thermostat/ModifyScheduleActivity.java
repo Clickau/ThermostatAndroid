@@ -6,14 +6,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -24,6 +28,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.text.DateFormatSymbols;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -107,6 +112,32 @@ public class ModifyScheduleActivity extends AppCompatActivity {
         repeatButton.setText(schedule.getRepeat().toString());
         repeatButton.setOnClickListener(new RepeatButtonOnClickListener());
 
+        LayoutInflater inflater = getLayoutInflater();
+        Locale l = Locale.getDefault();
+        DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(l);
+        String[] weekdayStrings = dateFormatSymbols.getWeekdays();
+        Calendar cal = Calendar.getInstance();
+        boolean[] scheduleWeekdays = schedule.getWeekdays();
+        int firstWeekday = cal.getFirstDayOfWeek();
+        for (int i = 1, weekday = firstWeekday; i <= 7; i++, weekday = weekday % 7 + 1) {
+            String name = weekdayStrings[weekday].toUpperCase();
+            char letter;
+            // if the locale is china, taiwan, or singapore chinese, the first characters of all days are the same, so we get the last one
+            if (l != Locale.CHINESE && l != Locale.SIMPLIFIED_CHINESE && l != Locale.TRADITIONAL_CHINESE)
+                letter = name.charAt(0);
+            else
+                letter = name.charAt(name.length() - 1);
+            View weekdayButtonFrame = inflater.inflate(R.layout.weekday_button, weekdaysLayout, false);
+            CheckBox weekdayButton = weekdayButtonFrame.findViewById(R.id.weekday_button_checkbox);
+            weekdayButton.setText(Character.toString(letter));
+            weekdayButton.setChecked(scheduleWeekdays[weekday]);
+            if (scheduleWeekdays[weekday]) {
+                weekdayButton.setTextColor(getResources().getColor(android.R.color.white));
+            }
+            weekdayButton.setOnCheckedChangeListener(new WeekdayButtonOnCheckedChangeListener(weekday));
+            weekdaysLayout.addView(weekdayButtonFrame);
+        }
+
         switch (schedule.getRepeat()) {
             case Once:
                 weekdaysLayout.setVisibility(View.GONE);
@@ -152,7 +183,7 @@ public class ModifyScheduleActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.activity_modify_schedule_menu_save) {
             if (schedule.getStart().compareTo(schedule.getEnd()) >= 0) {
-                Snackbar.make(findViewById(android.R.id.content), "Start time must be before end time", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(android.R.id.content), R.string.modify_schedule_start_not_before_end, Snackbar.LENGTH_LONG).show();
                 return true;
             }
             if (schedule.getRepeat() != Schedule.Repeat.Once) {
@@ -172,6 +203,31 @@ public class ModifyScheduleActivity extends AppCompatActivity {
                 newCalendar.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY));
                 newCalendar.set(Calendar.MINUTE, cal.get(Calendar.MINUTE));
                 schedule.setEnd(newCalendar.getTime());
+            }
+
+            // check if at least one weekday is selected or if all of them are selected
+            if (schedule.getRepeat() == Schedule.Repeat.Weekly) {
+                boolean oneSelected = false, allSelected = true;
+                boolean[] weekdays = schedule.getWeekdays();
+                for (int i = 1; i <= 7; i++) {
+                    if (weekdays[i])
+                        oneSelected = true;
+                    else
+                        allSelected = false;
+                }
+
+                if (!oneSelected) {
+                    // none of the weekdays are selected
+                    Snackbar.make(findViewById(android.R.id.content), R.string.modify_schedule_select_at_least_one_weekday, Snackbar.LENGTH_SHORT).show();
+                    return true;
+                }
+
+                if (allSelected) {
+                    // change schedule to daily
+                    schedule.setRepeat(Schedule.Repeat.Daily);
+                    schedule.clearWeekdays();
+                    Toast.makeText(this, R.string.modify_schedule_turned_into_daily, Toast.LENGTH_SHORT).show();
+                }
             }
 
             Log.d(TAG, String.format("Repeat: %s", schedule.getRepeat().toString()));
@@ -261,6 +317,25 @@ public class ModifyScheduleActivity extends AppCompatActivity {
                         }
                     })
                     .create().show();
+        }
+    }
+
+    private class WeekdayButtonOnCheckedChangeListener implements CompoundButton.OnCheckedChangeListener {
+
+        private final int which;
+
+        public WeekdayButtonOnCheckedChangeListener(int which) {
+            this.which = which;
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            schedule.setWeekday(which, isChecked);
+            if (isChecked) {
+                buttonView.setTextColor(getResources().getColor(android.R.color.white));
+            } else {
+                buttonView.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
+            }
         }
     }
 

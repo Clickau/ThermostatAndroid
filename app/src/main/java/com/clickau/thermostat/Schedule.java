@@ -26,7 +26,7 @@ public class Schedule implements Parcelable {
             float temperature = in.readFloat();
             Date start = new Date(in.readLong());
             Date end = new Date(in.readLong());
-            int[] weekdays = in.createIntArray();
+            boolean[] weekdays = in.createBooleanArray();
             return new Schedule(repeat, temperature, start, end, weekdays);
         }
 
@@ -48,7 +48,7 @@ public class Schedule implements Parcelable {
         dest.writeFloat(temperature);
         dest.writeLong(start.getTime());
         dest.writeLong(end.getTime());
-        dest.writeIntArray(weekdays);
+        dest.writeBooleanArray(weekdays);
     }
 
     public enum Repeat {
@@ -87,9 +87,9 @@ public class Schedule implements Parcelable {
     private float temperature;
     private Date start;
     private Date end;
-    private int[] weekdays; // can't use DayOfWeek because it is introduced only in api 26
+    private boolean[] weekdays = new boolean[8];
 
-    public Schedule(Repeat repeat, float temperature, Date start, Date end, int[] weekdays) {
+    public Schedule(Repeat repeat, float temperature, Date start, Date end, boolean[] weekdays) {
         this.setWeekdays(weekdays);
         this.setRepeat(repeat);
         this.setTemperature(temperature);
@@ -138,12 +138,16 @@ public class Schedule implements Parcelable {
                 int eH = scheduleJson.get("eH").getAsInt();
                 int eM = scheduleJson.get("eM").getAsInt();
                 Date startDate, endDate;
-                int[] weekDays = new int[]{};
+                boolean[] weekDays = new boolean[8];
                 Calendar cal = Calendar.getInstance();
                 cal.clear();
                 switch (repeat) {
                     case Weekly:
-                        weekDays = context.deserialize(scheduleJson.get("weekDays").getAsJsonArray(), int[].class);
+                        int[] weekDaysIntArray = context.deserialize(scheduleJson.get("weekDays").getAsJsonArray(), int[].class);
+                        for (int day : weekDaysIntArray) {
+                            if (1 <= day && day <= 7)
+                                weekDays[day] = true;
+                        }
                     case Daily:
                         cal.set(Calendar.HOUR_OF_DAY, sH);
                         cal.set(Calendar.MINUTE, sM);
@@ -179,14 +183,24 @@ public class Schedule implements Parcelable {
         }
     }
 
+    public void setWeekday(int weekday, boolean value) {
+        if (1 <= weekday && weekday <= 7)
+            this.weekdays[weekday] = value;
+    }
+
+    public void clearWeekdays() {
+        for (int i = 1; i <= 7; i++) {
+            this.weekdays[i] = false;
+        }
+    }
 
     // Getters and setters
 
-    public int[] getWeekdays() {
+    public boolean[] getWeekdays() {
         return weekdays;
     }
 
-    public void setWeekdays(int[] weekdays) {
+    public void setWeekdays(boolean[] weekdays) {
         this.weekdays = weekdays;
     }
 
