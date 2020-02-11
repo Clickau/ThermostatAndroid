@@ -16,13 +16,16 @@
 
         <activity
             android:name=".ModifyScheduleActivity"
+            android:label="Modify schedule"
             android:exported="false"/>
 
         <activity
             android:name=".SetupFirebaseActivity"
+            android:label="Setup Firebase"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".SetupWifiActivity"
+            android:label="Setup Wifi"
             android:parentActivityName=".MainActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
