@@ -38,6 +38,9 @@ import java.util.Locale;
 
 public class ModifyScheduleActivity extends AppCompatActivity {
 
+    public static final int ACTION_MODIFY = 0;
+    public static final int ACTION_ADD = 1;
+
     private static final String TAG = ModifyScheduleActivity.class.getSimpleName();
 
     private MaterialButton temperatureButton;
@@ -50,6 +53,7 @@ public class ModifyScheduleActivity extends AppCompatActivity {
 
     private Schedule schedule;
     private int position;
+    private int action;
     private java.text.DateFormat dateFormat = SimpleDateFormat.getDateInstance(java.text.DateFormat.FULL);
     private java.text.DateFormat timeFormat = SimpleDateFormat.getTimeInstance(java.text.DateFormat.SHORT);
 
@@ -63,8 +67,8 @@ public class ModifyScheduleActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.setDisplayHomeAsUpEnabled(true);
+        assert actionBar != null;
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         temperatureButton = findViewById(R.id.modify_schedule_temperature_button);
         repeatButton = findViewById(R.id.modify_schedule_repeat_button);
@@ -76,10 +80,27 @@ public class ModifyScheduleActivity extends AppCompatActivity {
 
         schedule = getIntent().getParcelableExtra("schedule");
         position = getIntent().getIntExtra("position", -1);
-        if (schedule == null || position == -1) {
-            finish();
-            return;
+        action = getIntent().getIntExtra("action", ACTION_ADD);
+
+        if (action == ACTION_ADD) {
+            actionBar.setTitle(R.string.modify_schedule_add_title);
+            Calendar cal = Calendar.getInstance();
+            Date start, end;
+            cal.clear();
+            cal.set(Calendar.HOUR_OF_DAY, 8);
+            start = cal.getTime();
+            cal.set(Calendar.HOUR_OF_DAY, 20);
+            end = cal.getTime();
+            // set some default values
+            schedule = new Schedule(Schedule.Repeat.Daily, 20.0f, start, end, new boolean[8]);
+        } else {
+            actionBar.setTitle(R.string.modify_schedule_modify_title);
+            if (schedule == null || position == -1) {
+                finish();
+                return;
+            }
         }
+
         Log.d(TAG, String.format("Repeat: %s", schedule.getRepeat().toString()));
         Log.d(TAG, String.format("Temp: %f", schedule.getTemperature()));
         Log.d(TAG, String.format("Start: %s", schedule.getStartString()));
@@ -238,7 +259,12 @@ public class ModifyScheduleActivity extends AppCompatActivity {
 
             Intent result = new Intent();
             result.putExtra("schedule", schedule);
-            result.putExtra("position", position);
+            if (action == ACTION_MODIFY) {
+                result.putExtra("position", position);
+                result.putExtra("action", ACTION_MODIFY);
+            } else {
+                result.putExtra("action", ACTION_ADD);
+            }
             setResult(RESULT_OK, result);
             finish();
             return true;

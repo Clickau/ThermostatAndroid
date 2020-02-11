@@ -116,4 +116,9 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
         schedules.set(position, newSchedule);
         notifyItemChanged(position);
     }
+
+    public void addItem(Schedule newSchedule) {
+        schedules.add(0, newSchedule);
+        notifyItemInserted(0);
+    }
 }

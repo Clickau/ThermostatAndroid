@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,6 +44,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     private SchedulesAdapter listAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private FloatingActionButton fab;
 
     @Nullable
     @Override
@@ -53,6 +55,9 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        fab = view.findViewById(R.id.fragment_schedules_fab);
+        fab.setOnClickListener(new FABOnClickListener());
 
         swipeRefreshLayout = view.findViewById(R.id.fragment_schedules_swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -78,7 +83,6 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
 
     private void RefreshList() {
         Log.d(TAG, "Refreshing Schedules list");
-
         FirebaseService.getSchedules(getContext(), new ResultReceiver(new Handler()) {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -172,6 +176,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
         Intent intent = new Intent(getContext(), ModifyScheduleActivity.class);
         intent.putExtra("schedule", schedule);
         intent.putExtra("position", position);
+        intent.putExtra("action", ModifyScheduleActivity.ACTION_MODIFY);
         startActivityForResult(intent, MODIFY_SCHEDULE_ACTIVITY_RESULT_CODE);
     }
 
@@ -179,8 +184,23 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == MODIFY_SCHEDULE_ACTIVITY_RESULT_CODE && data != null) {
             Schedule schedule = data.getParcelableExtra("schedule");
-            int position = data.getIntExtra("position", -1);
-            listAdapter.setItemAt(position, schedule);
+            int action = data.getIntExtra("action", -1);
+            if (action == ModifyScheduleActivity.ACTION_MODIFY) {
+                int position = data.getIntExtra("position", -1);
+                listAdapter.setItemAt(position, schedule);
+            } else {
+                listAdapter.addItem(schedule);
+            }
+        }
+    }
+
+    private class FABOnClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getContext(), ModifyScheduleActivity.class);
+            intent.putExtra("action", ModifyScheduleActivity.ACTION_ADD);
+            startActivityForResult(intent, MODIFY_SCHEDULE_ACTIVITY_RESULT_CODE);
         }
     }
 }
