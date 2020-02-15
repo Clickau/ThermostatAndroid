@@ -174,6 +174,8 @@ public class Schedule implements Parcelable {
                         startDate = new Date();
                         endDate = new Date();
                 }
+                if (startDate.compareTo(endDate) >= 0)
+                    return null;
                 return new Schedule(repeat, temperature, startDate, endDate, weekDays);
 
             } catch (RuntimeException e) {
