@@ -15,10 +15,13 @@ import java.util.Collection;
 import java.util.Locale;
 
 @SuppressWarnings("WeakerAccess")
-public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.SchedulesViewHolder> {
+public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    public static final int VIEW_TYPE_NORMAL = 0;
+    public static final int VIEW_TYPE_ADD = 1;
 
     public interface ViewHolderResponder {
-        void onClickOnItem(int position);
+        void onClickOnItem(int viewType, int position);
     }
 
     public static class SchedulesViewHolder extends RecyclerView.ViewHolder {
@@ -41,7 +44,7 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    responder.get().onClickOnItem(position);
+                    responder.get().onClickOnItem(VIEW_TYPE_NORMAL, position);
                 }
             });
         }
@@ -73,6 +76,19 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
         }
     }
 
+    public static class AddButtonViewHolder extends RecyclerView.ViewHolder {
+
+        public AddButtonViewHolder(@NonNull View itemView, final WeakReference<ViewHolderResponder> responder) {
+            super(itemView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    responder.get().onClickOnItem(VIEW_TYPE_ADD, 0);
+                }
+            });
+        }
+    }
+
     private final ArrayList<Schedule> schedules;
     private final WeakReference<ViewHolderResponder> responder;
 
@@ -81,24 +97,40 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
         this.responder = responder;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0) {
+            return VIEW_TYPE_ADD;
+        }
+        return VIEW_TYPE_NORMAL;
+    }
+
     @NonNull
     @Override
-    public SchedulesAdapter.SchedulesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        if (viewType == VIEW_TYPE_ADD) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.add_schedule_button, parent, false);
+            return new AddButtonViewHolder(view, responder);
+        }
 
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.schedule_view, parent, false);
-
         return new SchedulesViewHolder(view, responder);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SchedulesViewHolder holder, int position) {
-        Schedule schedule = schedules.get(position);
-        holder.bind(schedule, position);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+
+        if (holder.getItemViewType() == VIEW_TYPE_NORMAL) {
+            SchedulesViewHolder scheduleHolder = (SchedulesViewHolder) holder;
+            Schedule schedule = schedules.get(position - 1);
+            scheduleHolder.bind(schedule, position - 1);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return schedules.size();
+        return schedules.size() + 1;
     }
 
     public void updateSchedules(Collection<? extends Schedule> newSchedules) {
@@ -113,11 +145,11 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
 
     public void setItemAt(int position, Schedule newSchedule) {
         schedules.set(position, newSchedule);
-        notifyItemChanged(position);
+        notifyItemChanged(position + 1);
     }
 
     public void addItem(Schedule newSchedule) {
         schedules.add(0, newSchedule);
-        notifyItemInserted(0);
+        notifyItemInserted(1);
     }
 }

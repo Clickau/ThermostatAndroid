@@ -20,9 +20,8 @@
         android:id="@+id/fragment_schedules_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.FloatingActionButton"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_add_white_24dp" />
+        android:src="@drawable/ic_file_upload_black_24dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -168,7 +169,15 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     }
 
     @Override
-    public void onClickOnItem(int position) {
+    public void onClickOnItem(int viewType, int position) {
+
+        if (viewType == SchedulesAdapter.VIEW_TYPE_ADD) {
+            Intent intent = new Intent(getContext(), ModifyScheduleActivity.class);
+            intent.putExtra("action", ModifyScheduleActivity.ACTION_ADD);
+            startActivityForResult(intent, MODIFY_SCHEDULE_ACTIVITY_RESULT_CODE);
+            return;
+        }
+
         Schedule schedule = listAdapter.getItemAt(position);
         Intent intent = new Intent(getContext(), ModifyScheduleActivity.class);
         intent.putExtra("schedule", schedule);
@@ -195,9 +204,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(getContext(), ModifyScheduleActivity.class);
-            intent.putExtra("action", ModifyScheduleActivity.ACTION_ADD);
-            startActivityForResult(intent, MODIFY_SCHEDULE_ACTIVITY_RESULT_CODE);
+            Toast.makeText(getContext(), "Upload", Toast.LENGTH_SHORT).show();
         }
     }
 }
