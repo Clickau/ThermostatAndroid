@@ -14,10 +14,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
+@SuppressWarnings("WeakerAccess")
 public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.SchedulesViewHolder> {
 
     public interface ViewHolderResponder {
-        void onClickOnItem(View v, int position);
+        void onClickOnItem(int position);
     }
 
     public static class SchedulesViewHolder extends RecyclerView.ViewHolder {
@@ -28,7 +29,6 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
         private final TextView endTextView;
         private final TextView weekdaysTextView;
         private int position;
-        private WeakReference<ViewHolderResponder> responder;
 
         private SchedulesViewHolder(@NonNull View itemView, final WeakReference<ViewHolderResponder> responder){
             super(itemView);
@@ -37,12 +37,11 @@ public class SchedulesAdapter extends RecyclerView.Adapter<SchedulesAdapter.Sche
             startTextView = itemView.findViewById(R.id.schedule_view_start_text_view);
             endTextView = itemView.findViewById(R.id.schedule_view_end_text_view);
             weekdaysTextView = itemView.findViewById(R.id.schedule_view_weekdays_text_view);
-            this.responder = responder;
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    responder.get().onClickOnItem(v, position);
+                    responder.get().onClickOnItem(position);
                 }
             });
         }

@@ -157,8 +157,11 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
         if (imm != null)
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
+        @SuppressWarnings("ConstantConditions")
         String ip = ipEditText.getText().toString();
+        @SuppressWarnings("ConstantConditions")
         String ssid = ssidEditText.getText().toString();
+        @SuppressWarnings("ConstantConditions")
         String password = passwordEditText.getText().toString();
         Log.d(TAG, String.format("Received ip:%s ssid:%s password:%s", ip, ssid, password));
         // ip address is empty or invalid

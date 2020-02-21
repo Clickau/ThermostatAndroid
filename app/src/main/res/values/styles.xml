@@ -1,12 +1,27 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@android:color/background_light</item>
+        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
+    </style>
+
+    <style name="ToolbarStyle" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:theme">@style/ToolbarTheme</item>
+        <item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:layout_height">?attr/actionBarSize</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="ToolbarTheme">
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
     </style>
 
     <style name="AppTheme.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
@@ -30,21 +45,6 @@
         <item name="android:textAlignment">textStart</item>
         <item name="iconPadding">20dp</item>
         <item name="iconTint">@color/darkGrey</item>
-    </style>
-
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="LineSeparator">
-        <item name="android:layout_height">0.5dp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:background">@android:color/darker_gray</item>
     </style>
 
 </resources>

@@ -8,11 +8,8 @@
     tools:context=".SetupFirebaseActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/setup_firebase_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        style="@style/ToolbarStyle"
+        android:id="@+id/setup_firebase_toolbar" />
 
     <ProgressBar
         android:id="@+id/setup_firebase_progress_bar"
@@ -38,8 +35,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="20dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/setup_firebase_url_text_input_layout"
@@ -58,6 +54,7 @@
                     android:lines="1"
                     android:maxLines="1"
                     android:minEms="8"
+                    android:maxEms="13"
                     android:hint="@string/setup_firebase_url_hint" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -79,7 +76,7 @@
             android:id="@+id/setup_firebase_secret_key_text_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             app:errorEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -99,7 +96,7 @@
             android:id="@+id/setup_firebase_schedules_path_text_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             app:errorEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText

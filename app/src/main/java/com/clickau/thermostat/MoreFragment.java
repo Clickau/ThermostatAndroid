@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 
+@SuppressWarnings("WeakerAccess") // the code inspector shows this warning, but IntelliSense does not
 public class MoreFragment extends Fragment {
 
     @Nullable

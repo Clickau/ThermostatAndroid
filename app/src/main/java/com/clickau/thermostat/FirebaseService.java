@@ -18,6 +18,7 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class FirebaseService extends IntentService {
 
     private static final String TAG = FirebaseService.class.getSimpleName();

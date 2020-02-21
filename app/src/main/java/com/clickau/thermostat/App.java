@@ -10,6 +10,7 @@ import androidx.annotation.ColorInt;
 import androidx.core.content.ContextCompat;
 
 // used to make project resources available from any class, without needing a context
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class App extends Application {
     private static App instance;
     private static Resources res;

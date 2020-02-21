@@ -5,15 +5,12 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".ModifyScheduleActivity">
+    tools:context=".ModifyScheduleActivity"
+    tools:ignore="HardcodedText">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/modify_schedule_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:layout_alignParentTop="true"
-        android:background="?attr/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        style="@style/ToolbarStyle"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/modify_schedule_temperature_button"

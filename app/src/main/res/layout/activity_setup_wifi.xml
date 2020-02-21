@@ -8,11 +8,8 @@
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/setup_wifi_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        style="@style/ToolbarStyle"
+        android:id="@+id/setup_wifi_toolbar" />
 
     <ProgressBar
         android:id="@+id/setup_wifi_progress_bar"

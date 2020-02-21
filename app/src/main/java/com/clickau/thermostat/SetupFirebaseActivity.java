@@ -147,8 +147,11 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
         if (imm != null)
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
+        @SuppressWarnings("ConstantConditions") // suppress null warning
         final String urlStr = firebaseURLEditText.getText().toString();
+        @SuppressWarnings("ConstantConditions")
         final String secret = secretKeyEditText.getText().toString();
+        @SuppressWarnings("ConstantConditions")
         final String schedulesPath = schedulesPathEditText.getText().toString();
 
         // must contain at least one alphanumeric character and optionally more alphanumeric characters and dashes

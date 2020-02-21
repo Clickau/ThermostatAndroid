@@ -40,11 +40,8 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     private static final String TAG = SchedulesFragment.class.getSimpleName();
     private static final int MODIFY_SCHEDULE_ACTIVITY_RESULT_CODE = 0;
 
-    private RecyclerView recyclerView;
     private SchedulesAdapter listAdapter;
-    private RecyclerView.LayoutManager layoutManager;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private FloatingActionButton fab;
 
     @Nullable
     @Override
@@ -56,7 +53,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        fab = view.findViewById(R.id.fragment_schedules_fab);
+        FloatingActionButton fab = view.findViewById(R.id.fragment_schedules_fab);
         fab.setOnClickListener(new FABOnClickListener());
 
         swipeRefreshLayout = view.findViewById(R.id.fragment_schedules_swipe_refresh_layout);
@@ -69,10 +66,10 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
 
         setHasOptionsMenu(true);
 
-        recyclerView = view.findViewById(R.id.fragment_schedules_recycler_view);
+        RecyclerView recyclerView = view.findViewById(R.id.fragment_schedules_recycler_view);
         recyclerView.setHasFixedSize(true);
 
-        layoutManager = new LinearLayoutManager(getContext());
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         listAdapter = new SchedulesAdapter(new ArrayList<Schedule>(), new WeakReference<SchedulesAdapter.ViewHolderResponder>(this));
         recyclerView.setAdapter(listAdapter);
@@ -171,7 +168,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     }
 
     @Override
-    public void onClickOnItem(View v, int position) {
+    public void onClickOnItem(int position) {
         Schedule schedule = listAdapter.getItemAt(position);
         Intent intent = new Intent(getContext(), ModifyScheduleActivity.class);
         intent.putExtra("schedule", schedule);

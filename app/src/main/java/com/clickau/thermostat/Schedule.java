@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+@SuppressWarnings("WeakerAccess")
 public class Schedule implements Parcelable {
 
     public static final Creator<Schedule> CREATOR = new Creator<Schedule>() {

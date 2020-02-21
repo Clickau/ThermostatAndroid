@@ -1,5 +1,6 @@
 package com.clickau.thermostat;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
@@ -54,8 +55,8 @@ public class ModifyScheduleActivity extends AppCompatActivity {
     private Schedule schedule;
     private int position;
     private int action;
-    private java.text.DateFormat dateFormat = SimpleDateFormat.getDateInstance(java.text.DateFormat.FULL);
-    private java.text.DateFormat timeFormat = SimpleDateFormat.getTimeInstance(java.text.DateFormat.SHORT);
+    private final java.text.DateFormat dateFormat = SimpleDateFormat.getDateInstance(java.text.DateFormat.FULL);
+    private final java.text.DateFormat timeFormat = SimpleDateFormat.getTimeInstance(java.text.DateFormat.SHORT);
 
 
     @Override
@@ -276,6 +277,7 @@ public class ModifyScheduleActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
+            @SuppressLint("InflateParams")
             View dialogView = getLayoutInflater().inflate(R.layout.dialog_temperature_picker, null);
             AlertDialog.Builder builder = new AlertDialog.Builder(ModifyScheduleActivity.this)
                     .setTitle(R.string.dialog_temperature_picker_title)
@@ -350,7 +352,7 @@ public class ModifyScheduleActivity extends AppCompatActivity {
 
         private final int which;
 
-        public WeekdayButtonOnCheckedChangeListener(int which) {
+        private WeekdayButtonOnCheckedChangeListener(int which) {
             this.which = which;
         }
 
