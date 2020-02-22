@@ -3,6 +3,7 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">@color/colorPrimary</color>
+    <color name="colorPrimaryAlpha15">#15008577</color>
 
     <color name="darkGrey">#606060</color>
     <color name="errorRed">@android:color/holo_red_dark</color>

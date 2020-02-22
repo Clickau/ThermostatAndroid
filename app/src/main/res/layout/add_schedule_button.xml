@@ -11,4 +11,4 @@
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
     app:icon="@drawable/ic_add_white_24dp"
-    android:text="Add schedule" />
+    android:text="@string/add_schedule_button_text" />

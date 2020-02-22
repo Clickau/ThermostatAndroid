@@ -1,7 +1,7 @@
 package com.clickau.thermostat;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -61,7 +62,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                RefreshList();
+                OnRefresh();
             }
         });
 
@@ -72,11 +73,44 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        listAdapter = new SchedulesAdapter(new ArrayList<Schedule>(), new WeakReference<SchedulesAdapter.ViewHolderResponder>(this));
+        if (savedInstanceState == null) {
+            listAdapter = new SchedulesAdapter(new ArrayList<Schedule>(), new WeakReference<SchedulesAdapter.ViewHolderResponder>(this));
+        } else {
+            ArrayList<Schedule> list = savedInstanceState.getParcelableArrayList("schedules");
+            listAdapter = new SchedulesAdapter(list, new WeakReference<SchedulesAdapter.ViewHolderResponder>(this));
+        }
         recyclerView.setAdapter(listAdapter);
 
-        swipeRefreshLayout.setRefreshing(true);
-        RefreshList();
+        if (savedInstanceState == null) {
+            swipeRefreshLayout.setRefreshing(true);
+            RefreshList();
+        }
+    }
+
+    private void OnRefresh() {
+        if (listAdapter.isSchedulesModifiedLocally()) {
+            Activity activity = getActivity();
+            if (activity == null) return;
+            new AlertDialog.Builder(activity)
+                    .setTitle(R.string.schedules_discard_changes_message_title)
+                    .setMessage(R.string.schedules_discard_changes_message)
+                    .setCancelable(false)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            RefreshList();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    })
+                    .create().show();
+        } else {
+            RefreshList();
+        }
     }
 
     private void RefreshList() {
@@ -131,19 +165,19 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
                         listAdapter.updateSchedules(map.values());
                         break;
                     case FirebaseService.RESULT_DATABASE_NOT_FOUND:
-                        Snackbar.make(activity.findViewById(android.R.id.content), R.string.setup_firebase_database_not_found, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_database_not_found, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_MALFORMED_URL:
-                        Snackbar.make(activity.findViewById(android.R.id.content), R.string.setup_firebase_invalid_url, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_invalid_url, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_UNAUTHORIZED:
-                        Snackbar.make(activity.findViewById(android.R.id.content), R.string.setup_firebase_unauthorized, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_unauthorized, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_IO_EXCEPTION:
-                        Snackbar.make(activity.findViewById(android.R.id.content), R.string.setup_firebase_io_exception, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_io_exception, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_SERVER_ERROR:
-                        Snackbar.make(activity.findViewById(android.R.id.content), R.string.setup_firebase_server_error, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_server_error, Snackbar.LENGTH_LONG).show();
                         break;
                 }
                 swipeRefreshLayout.setRefreshing(false);
@@ -152,16 +186,20 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     }
 
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putParcelableArrayList("schedules", listAdapter.getSchedules());
+    }
+
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.fragment_schedules_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.fragment_schedules_menu_refresh) {
             swipeRefreshLayout.setRefreshing(true);
-            RefreshList();
+            OnRefresh();
             return true;
         }
 

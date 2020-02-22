@@ -91,6 +91,7 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private final ArrayList<Schedule> schedules;
     private final WeakReference<ViewHolderResponder> responder;
+    private boolean schedulesModifiedLocally = false;
 
     public SchedulesAdapter(ArrayList<Schedule> schedules, WeakReference<ViewHolderResponder> responder) {
         this.schedules = schedules;
@@ -137,6 +138,7 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         schedules.clear();
         schedules.addAll(newSchedules);
         notifyDataSetChanged();
+        schedulesModifiedLocally = false;
     }
 
     public Schedule getItemAt(int position) {
@@ -146,10 +148,20 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void setItemAt(int position, Schedule newSchedule) {
         schedules.set(position, newSchedule);
         notifyItemChanged(position + 1);
+        schedulesModifiedLocally = true;
     }
 
     public void addItem(Schedule newSchedule) {
         schedules.add(0, newSchedule);
         notifyItemInserted(1);
+        schedulesModifiedLocally = true;
+    }
+
+    public ArrayList<Schedule> getSchedules() {
+        return schedules;
+    }
+
+    public boolean isSchedulesModifiedLocally() {
+        return schedulesModifiedLocally;
     }
 }

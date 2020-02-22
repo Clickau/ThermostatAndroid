@@ -54,4 +54,7 @@
     <string name="modify_schedule_start_not_before_end">Start time must be before end time</string>
     <string name="modify_schedule_select_at_least_one_weekday">You must select at least one weekday</string>
     <string name="modify_schedule_turned_into_daily">Schedule was turned into a daily one</string>
+    <string name="add_schedule_button_text">Add Schedule</string>
+    <string name="schedules_discard_changes_message_title">Discard changes</string>
+    <string name="schedules_discard_changes_message">Refreshing the schedule list will override any uncommitted changes you\'ve made. Are you sure you want to continue?</string>
 </resources>
