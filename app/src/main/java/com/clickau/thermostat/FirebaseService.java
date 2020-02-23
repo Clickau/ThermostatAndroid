@@ -56,6 +56,10 @@ public class FirebaseService extends IntentService {
         get(context, firebaseSchedulesPath, receiver);
     }
 
+    public static void setSchedules(Context context, String data, ResultReceiver receiver) {
+        set(context, firebaseSchedulesPath, data, receiver);
+    }
+
     public static void set(Context context, String path, String data, ResultReceiver receiver) {
         Intent intent = new Intent(context, FirebaseService.class);
         intent.setAction(ACTION_SET);

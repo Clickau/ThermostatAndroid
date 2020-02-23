@@ -5,15 +5,19 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -124,6 +128,50 @@ public class Schedule implements Parcelable {
         return "";
     }
 
+    public void setWeekday(int weekday, boolean value) {
+        if (1 <= weekday && weekday <= 7)
+            this.weekdays[weekday] = value;
+    }
+
+    public void clearWeekdays() {
+        for (int i = 1; i <= 7; i++) {
+            this.weekdays[i] = false;
+        }
+    }
+
+    /**
+     * Helper function that checks if there are any schedules that overlap and that have the same repeat
+     * @param list ArrayList that contains the schedules
+     * @return true if there are no overlapping schedules, and false otherwise
+     */
+    public static boolean isScheduleListValid(ArrayList<Schedule> list) {
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = i + 1; j < list.size(); j++) {
+                Schedule s1 = list.get(i), s2 = list.get(j);
+                if (s1.getRepeat() == s2.getRepeat()) {
+                    if (s1.getRepeat() == Repeat.Weekly) {
+                        boolean sameWeekday = false;
+                        for (int k = 1; k <= 7; k++) {
+                            if (s1.getWeekdays()[k] && s2.getWeekdays()[k]) {
+                                // they are both active on the same weekday
+                                sameWeekday = true;
+                            }
+                        }
+                        if (!sameWeekday) {
+                            // they don't have any weekdays in common, clearly they can't overlap
+                            continue;
+                        }
+                    }
+                    if (s1.getEnd().compareTo(s2.getStart()) > 0 && s2.getEnd().compareTo(s1.getStart()) > 0) {
+                        // they overlap
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public static class Deserializer implements JsonDeserializer<Schedule> {
 
         @Override
@@ -186,14 +234,43 @@ public class Schedule implements Parcelable {
         }
     }
 
-    public void setWeekday(int weekday, boolean value) {
-        if (1 <= weekday && weekday <= 7)
-            this.weekdays[weekday] = value;
-    }
+    public static class Serializer implements JsonSerializer<Schedule> {
 
-    public void clearWeekdays() {
-        for (int i = 1; i <= 7; i++) {
-            this.weekdays[i] = false;
+        @Override
+        public JsonElement serialize(Schedule schedule, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject object = new JsonObject();
+            object.addProperty("setTemp", schedule.getTemperature());
+            object.addProperty("repeat", schedule.getRepeat().name());
+            Calendar calendarStart = Calendar.getInstance();
+            calendarStart.setTime(schedule.getStart());
+            object.addProperty("sH", calendarStart.get(Calendar.HOUR_OF_DAY));
+            object.addProperty("sM", calendarStart.get(Calendar.MINUTE));
+            Calendar calendarEnd = Calendar.getInstance();
+            calendarEnd.setTime(schedule.getEnd());
+            object.addProperty("eH", calendarEnd.get(Calendar.HOUR_OF_DAY));
+            object.addProperty("eM", calendarEnd.get(Calendar.MINUTE));
+            switch (schedule.getRepeat()) {
+                case Daily:
+                    break;
+                case Once:
+                    object.addProperty("sY", calendarStart.get(Calendar.YEAR));
+                    object.addProperty("sMth", calendarStart.get(Calendar.MONTH));
+                    object.addProperty("sD", calendarStart.get(Calendar.DAY_OF_MONTH));
+                    object.addProperty("eY", calendarEnd.get(Calendar.YEAR));
+                    object.addProperty("eMth", calendarEnd.get(Calendar.MONTH));
+                    object.addProperty("eD", calendarEnd.get(Calendar.DAY_OF_MONTH));
+                    break;
+                case Weekly:
+                    JsonArray array = new JsonArray();
+                    for (int i = 1; i <= 7; i++) {
+                        if (schedule.getWeekdays()[i]) {
+                            array.add(i);
+                        }
+                    }
+                    object.add("weekDays", array);
+                    break;
+            }
+            return object;
         }
     }
 

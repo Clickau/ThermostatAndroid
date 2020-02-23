@@ -13,7 +13,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,9 +32,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 
 public class SchedulesFragment extends Fragment implements SchedulesAdapter.ViewHolderResponder {
 
@@ -127,10 +124,10 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
                         String str = resultData.getString("result");
                         Log.d(TAG, String.format("ScheduleString: %s", str));
                         Gson gson = new GsonBuilder().registerTypeAdapter(Schedule.class, new Schedule.Deserializer()).create();
-                        Type mapType = new TypeToken<Map<String, Schedule>>() {}.getType();
-                        Map<String, Schedule> map = null;
+                        Type mapType = new TypeToken<ArrayList<Schedule>>() {}.getType();
+                        ArrayList<Schedule> list = null;
                         try {
-                            map = gson.fromJson(str, mapType);
+                            list = gson.fromJson(str, mapType);
                         } catch (JsonParseException e) {
                             e.printStackTrace();
                             //TODO: Use a TextView above the RecyclerView to display this error (and maybe others)
@@ -142,9 +139,9 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
                                     .create().show();
                         }
                         int invalidSchedules = 0;
-                        if (map == null)
-                            map = Collections.emptyMap();
-                        for (Iterator<Schedule> it = map.values().iterator(); it.hasNext();) {
+                        if (list == null)
+                            list = new ArrayList<>();
+                        for (Iterator<Schedule> it = list.iterator(); it.hasNext();) {
                             Schedule schedule = it.next();
                             if (schedule == null) {
                                 it.remove();
@@ -162,7 +159,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
                                     .setPositiveButton(android.R.string.ok, null)
                                     .create().show();
                         }
-                        listAdapter.updateSchedules(map.values());
+                        listAdapter.updateSchedules(list);
                         break;
                     case FirebaseService.RESULT_DATABASE_NOT_FOUND:
                         Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_database_not_found, Snackbar.LENGTH_LONG).show();
@@ -242,7 +239,22 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(getContext(), "Upload", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, Boolean.toString(Schedule.isScheduleListValid(listAdapter.getSchedules())));
+            if (!Schedule.isScheduleListValid(listAdapter.getSchedules())) {
+                Activity activity = getActivity();
+                if (activity == null) return;
+                Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), "Some schedules of the same repeat overlap. Please resolve the conflict before committing", Snackbar.LENGTH_LONG).show();
+                return;
+            }
+            Gson gson = new GsonBuilder().registerTypeAdapter(Schedule.class, new Schedule.Serializer()).create();
+            String json = gson.toJson(listAdapter.getSchedules());
+            Log.d(TAG, json);
+            FirebaseService.setSchedules(getContext(), json, new ResultReceiver(new Handler()) {
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    Log.d(TAG, String.format("result: %d", resultCode));
+                }
+            });
         }
     }
 }
