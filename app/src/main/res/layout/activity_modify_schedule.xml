@@ -1,84 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     tools:context=".ModifyScheduleActivity"
     tools:ignore="HardcodedText">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/modify_schedule_toolbar"
-        style="@style/ToolbarStyle"/>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/modify_schedule_temperature_button"
-        style="@style/AppTheme.Button.TextButton"
-        app:icon="@drawable/ic_thermometer_black_24"
-        android:textSize="26sp"
-        android:text="20.5°C" />
-
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/modify_schedule_repeat_button"
-        style="@style/AppTheme.Button.TextButton"
-        app:icon="@drawable/ic_repeat_black_24dp"
-        android:text="Once" />
-
-    <LinearLayout
-        android:id="@+id/modify_schedule_weekdays_layout"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
-        android:visibility="visible" />
-
-    <LinearLayout
-        android:id="@+id/modify_schedule_start_layout"
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/modify_schedule_toolbar"
+            style="@style/ToolbarStyle"/>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/modify_schedule_start_time_button"
+            android:id="@+id/modify_schedule_temperature_button"
             style="@style/AppTheme.Button.TextButton"
-            android:layout_width="0dp"
-            android:layout_weight="4"
-            android:text="08:00"
-            app:icon="@drawable/ic_schedule_black_24dp"/>
+            app:icon="@drawable/ic_thermometer_black_24"
+            android:textSize="26sp"
+            android:text="20.5°C" />
+
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/modify_schedule_start_date_button"
+            android:id="@+id/modify_schedule_repeat_button"
             style="@style/AppTheme.Button.TextButton"
-            android:layout_width="0dp"
-            android:layout_weight="7"
-            android:text="Mon, Jan 15, 2020"
-            android:textAlignment="textEnd"/>
+            app:icon="@drawable/ic_repeat_black_24dp"
+            android:text="Once" />
+
+        <LinearLayout
+            android:id="@+id/modify_schedule_weekdays_layout"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/modify_schedule_start_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/modify_schedule_start_time_button"
+                style="@style/AppTheme.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_weight="4"
+                android:text="08:00"
+                app:icon="@drawable/ic_schedule_black_24dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/modify_schedule_start_date_button"
+                style="@style/AppTheme.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_weight="7"
+                android:text="Mon, Jan 15, 2020"
+                android:textAlignment="textEnd"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/modify_schedule_end_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/modify_schedule_end_time_button"
+                style="@style/AppTheme.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_weight="4"
+                android:text="10:00"
+                android:paddingStart="54dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/modify_schedule_end_date_button"
+                style="@style/AppTheme.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_weight="7"
+                android:text="Mon, Jan 16, 2020"
+                android:textAlignment="textEnd"/>
+
+        </LinearLayout>
 
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/modify_schedule_end_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/modify_schedule_end_time_button"
-            style="@style/AppTheme.Button.TextButton"
-            android:layout_width="0dp"
-            android:layout_weight="4"
-            android:text="10:00"
-            android:paddingStart="54dp"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/modify_schedule_end_date_button"
-            style="@style/AppTheme.Button.TextButton"
-            android:layout_width="0dp"
-            android:layout_weight="7"
-            android:text="Mon, Jan 16, 2020"
-            android:textAlignment="textEnd"/>
-
-    </LinearLayout>
-
-</LinearLayout>
+</ScrollView>
