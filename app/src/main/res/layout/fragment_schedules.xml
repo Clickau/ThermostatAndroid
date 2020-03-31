@@ -17,6 +17,16 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <ProgressBar
+        android:id="@+id/fragment_schedules_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminate="true"
+        android:layout_marginTop="-6dp"
+        android:layout_gravity="top" />
+
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fragment_schedules_fab"
         android:layout_width="wrap_content"

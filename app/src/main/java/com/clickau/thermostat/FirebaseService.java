@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -34,6 +35,7 @@ public class FirebaseService extends IntentService {
     public static final int RESULT_SERVER_ERROR = 5;
     public static final int RESULT_BAD_REQUEST = 6;
     public static final int RESULT_NOT_INITIALIZED = 7;
+    public static final int RESULT_TIMEOUT = 8;
 
     private static String firebaseUrl = null;
     private static String firebaseSecret = null;
@@ -124,6 +126,8 @@ public class FirebaseService extends IntentService {
 
         try {
              HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+             connection.setConnectTimeout(5000);
+             connection.setReadTimeout(5000);
 
              switch (action) {
                  case ACTION_PUSH: {
@@ -203,6 +207,9 @@ public class FirebaseService extends IntentService {
                      throw new RuntimeException("Server sent code " + responseCode + " which is not specified in the firebase REST api");
              }
              connection.disconnect();
+
+        } catch (SocketTimeoutException e) {
+            receiver.send(RESULT_TIMEOUT, Bundle.EMPTY);
 
         } catch (IOException e) {
             e.printStackTrace();

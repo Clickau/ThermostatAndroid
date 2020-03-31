@@ -188,7 +188,7 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
                 progressBar.setVisibility(View.INVISIBLE);
                 switch (resultCode) {
                     case FirebaseService.RESULT_SUCCESS:
-                        Toast.makeText(getApplicationContext(), R.string.setup_firebase_success, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), R.string.firebase_success, Toast.LENGTH_SHORT).show();
                         // the SnackBar wouldn't be visible when switching activities
                         //SnackBar.make(findViewById(android.R.id.content), R.string.setup_firebase_success, SnackBar.LENGTH_LONG).show();
                         // store url, secret and path to schedules
@@ -203,20 +203,21 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         startActivity(intent);
                         return;
-                    case FirebaseService.RESULT_DATABASE_NOT_FOUND:
-                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_database_not_found, Snackbar.LENGTH_LONG).show();
-                        break;
                     case FirebaseService.RESULT_MALFORMED_URL:
-                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_invalid_url, Snackbar.LENGTH_LONG).show();
+                    case FirebaseService.RESULT_DATABASE_NOT_FOUND:
+                        Snackbar.make(findViewById(android.R.id.content), R.string.firebase_database_not_found, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_UNAUTHORIZED:
-                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_unauthorized, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.firebase_unauthorized, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_IO_EXCEPTION:
-                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_io_exception, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.firebase_io_exception, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_SERVER_ERROR:
-                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_server_error, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.firebase_server_error, Snackbar.LENGTH_LONG).show();
+                        break;
+                    case FirebaseService.RESULT_TIMEOUT:
+                        Snackbar.make(findViewById(android.R.id.content), R.string.firebase_timeout, Snackbar.LENGTH_SHORT).show();
                         break;
                 }
 

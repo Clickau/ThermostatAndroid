@@ -13,10 +13,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,6 +43,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
 
     private SchedulesAdapter listAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private ProgressBar progressBar;
 
     @Nullable
     @Override
@@ -51,6 +54,9 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        progressBar = view.findViewById(R.id.fragment_schedules_progress_bar);
+        progressBar.setVisibility(View.GONE);
 
         FloatingActionButton fab = view.findViewById(R.id.fragment_schedules_fab);
         fab.setOnClickListener(new FABOnClickListener());
@@ -162,19 +168,25 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
                         listAdapter.updateSchedules(list);
                         break;
                     case FirebaseService.RESULT_DATABASE_NOT_FOUND:
-                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_database_not_found, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.firebase_database_not_found, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_MALFORMED_URL:
                         Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_invalid_url, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_UNAUTHORIZED:
-                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_unauthorized, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.firebase_unauthorized, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_IO_EXCEPTION:
-                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_io_exception, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.firebase_io_exception, Snackbar.LENGTH_LONG).show();
                         break;
                     case FirebaseService.RESULT_SERVER_ERROR:
-                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.setup_firebase_server_error, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.firebase_server_error, Snackbar.LENGTH_LONG).show();
+                        break;
+                    case FirebaseService.RESULT_TIMEOUT:
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.firebase_timeout, Snackbar.LENGTH_LONG).show();
+                        break;
+                    case FirebaseService.RESULT_NOT_INITIALIZED:
+                        Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.firebase_not_initialized, Snackbar.LENGTH_LONG).show();
                         break;
                 }
                 swipeRefreshLayout.setRefreshing(false);
@@ -246,13 +258,45 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
                 Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), "Some schedules of the same repeat overlap. Please resolve the conflict before committing", Snackbar.LENGTH_LONG).show();
                 return;
             }
+            progressBar.setVisibility(View.VISIBLE);
             Gson gson = new GsonBuilder().registerTypeAdapter(Schedule.class, new Schedule.Serializer()).create();
             String json = gson.toJson(listAdapter.getSchedules());
             Log.d(TAG, json);
             FirebaseService.setSchedules(getContext(), json, new ResultReceiver(new Handler()) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    Activity activity = getActivity();
+                    if (activity == null) return;
+                    CoordinatorLayout layout = activity.findViewById(R.id.fragment_schedules_coordinator_layout);
                     Log.d(TAG, String.format("result: %d", resultCode));
+                    progressBar.setVisibility(View.GONE);
+                    switch (resultCode) {
+                        case FirebaseService.RESULT_SUCCESS:
+                            listAdapter.setSchedulesModifiedLocally(false);
+                            Snackbar.make(layout, R.string.firebase_success, Snackbar.LENGTH_LONG).show();
+                            break;
+                        case FirebaseService.RESULT_DATABASE_NOT_FOUND:
+                        case FirebaseService.RESULT_MALFORMED_URL:
+                            Snackbar.make(layout, R.string.firebase_database_not_found, Snackbar.LENGTH_LONG).show();
+                            break;
+                        case FirebaseService.RESULT_UNAUTHORIZED:
+                            Snackbar.make(layout, R.string.firebase_unauthorized, Snackbar.LENGTH_LONG).show();
+                            break;
+                        case FirebaseService.RESULT_IO_EXCEPTION:
+                            Snackbar.make(layout, R.string.firebase_io_exception, Snackbar.LENGTH_LONG).show();
+                            break;
+                        case FirebaseService.RESULT_SERVER_ERROR:
+                            Snackbar.make(layout, R.string.firebase_server_error, Snackbar.LENGTH_LONG).show();
+                            break;
+                        case FirebaseService.RESULT_BAD_REQUEST:
+                            throw new RuntimeException("Firebase returned Bad Request when sending schedules");
+                        case FirebaseService.RESULT_NOT_INITIALIZED:
+                            Snackbar.make(layout, R.string.firebase_not_initialized, Snackbar.LENGTH_LONG).show();
+                            break;
+                        case FirebaseService.RESULT_TIMEOUT:
+                            Snackbar.make(layout, R.string.firebase_timeout, Snackbar.LENGTH_LONG).show();
+                            break;
+                    }
                 }
             });
         }

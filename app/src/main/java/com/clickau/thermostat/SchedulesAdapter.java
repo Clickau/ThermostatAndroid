@@ -164,4 +164,8 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public boolean isSchedulesModifiedLocally() {
         return schedulesModifiedLocally;
     }
+
+    public void setSchedulesModifiedLocally(boolean value) {
+        schedulesModifiedLocally = value;
+    }
 }

@@ -203,7 +203,7 @@ public class SetupWifiActivity extends AppCompatActivity implements View.OnClick
                         Snackbar.make(findViewById(android.R.id.content), R.string.setup_wifi_bad_ip_toast, Snackbar.LENGTH_LONG).show();
                         break;
                     case SendRequestIntentService.BAD_SERVER_RESPONSE:
-                        Snackbar.make(findViewById(android.R.id.content), String.format(R.string.setup_wifi_bad_server_response_toast + ": %s", resultData.getString("response")), Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.setup_wifi_bad_server_response_toast, Snackbar.LENGTH_LONG).show();
                         break;
                     case SendRequestIntentService.IO_EXCEPTION:
                         Snackbar.make(findViewById(android.R.id.content), R.string.setup_wifi_io_exception_toast, Snackbar.LENGTH_LONG).show();
