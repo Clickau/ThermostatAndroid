@@ -53,4 +53,12 @@
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
         android:text="On: Mon, Tue, Sun" />
 
+    <CheckBox
+        android:id="@+id/schedule_view_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/schedule_view_repeat_text_view"
+        android:layoutDirection="rtl" />
+
 </RelativeLayout>

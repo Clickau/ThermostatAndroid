@@ -36,7 +36,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class SchedulesFragment extends Fragment implements SchedulesAdapter.ViewHolderResponder {
+public class SchedulesFragment extends Fragment implements SchedulesAdapter.ViewHolderResponder, SchedulesAdapter.OnSelectModeChangedListener {
 
     private static final String TAG = SchedulesFragment.class.getSimpleName();
     private static final int MODIFY_SCHEDULE_ACTIVITY_RESULT_CODE = 0;
@@ -44,6 +44,8 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     private SchedulesAdapter listAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar progressBar;
+    private FloatingActionButton uploadFAB;
+    private FloatingActionButton deleteFAB;
 
     @Nullable
     @Override
@@ -58,8 +60,17 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
         progressBar = view.findViewById(R.id.fragment_schedules_progress_bar);
         progressBar.setVisibility(View.GONE);
 
-        FloatingActionButton fab = view.findViewById(R.id.fragment_schedules_fab);
-        fab.setOnClickListener(new FABOnClickListener());
+        uploadFAB = view.findViewById(R.id.fragment_schedules_upload_fab);
+        uploadFAB.setOnClickListener(new UploadOnClickListener());
+
+        deleteFAB = view.findViewById(R.id.fragment_schedules_delete_fab);
+        deleteFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listAdapter.deleteSelected();
+            }
+        });
+        deleteFAB.setVisibility(View.GONE);
 
         swipeRefreshLayout = view.findViewById(R.id.fragment_schedules_swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -77,10 +88,10 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         if (savedInstanceState == null) {
-            listAdapter = new SchedulesAdapter(new ArrayList<Schedule>(), new WeakReference<SchedulesAdapter.ViewHolderResponder>(this));
+            listAdapter = new SchedulesAdapter(new ArrayList<Schedule>(), new WeakReference<SchedulesAdapter.ViewHolderResponder>(this), new WeakReference<SchedulesAdapter.OnSelectModeChangedListener>(this));
         } else {
             ArrayList<Schedule> list = savedInstanceState.getParcelableArrayList("schedules");
-            listAdapter = new SchedulesAdapter(list, new WeakReference<SchedulesAdapter.ViewHolderResponder>(this));
+            listAdapter = new SchedulesAdapter(list, new WeakReference<SchedulesAdapter.ViewHolderResponder>(this), new WeakReference<SchedulesAdapter.OnSelectModeChangedListener>(this));
         }
         recyclerView.setAdapter(listAdapter);
 
@@ -91,6 +102,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
     }
 
     private void OnRefresh() {
+        listAdapter.clearSelected();
         if (listAdapter.isSchedulesModifiedLocally()) {
             Activity activity = getActivity();
             if (activity == null) return;
@@ -247,7 +259,20 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
         }
     }
 
-    private class FABOnClickListener implements View.OnClickListener {
+    @Override
+    public void OnSelectModeChanged(boolean selectMode) {
+        if (selectMode) {
+            // replace upload FAB with delete FAB
+            uploadFAB.setVisibility(View.GONE);
+            deleteFAB.setVisibility(View.VISIBLE);
+        } else {
+            // bring back upload FAB
+            uploadFAB.setVisibility(View.VISIBLE);
+            deleteFAB.setVisibility(View.GONE);
+        }
+    }
+
+    private class UploadOnClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
