@@ -17,7 +17,6 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -139,38 +138,6 @@ public class Schedule implements Parcelable {
         }
     }
 
-    /**
-     * Helper function that checks if there are any schedules that overlap and that have the same repeat
-     * @param list ArrayList that contains the schedules
-     * @return true if there are no overlapping schedules, and false otherwise
-     */
-    public static boolean isScheduleListValid(ArrayList<Schedule> list) {
-        for (int i = 0; i < list.size(); i++) {
-            for (int j = i + 1; j < list.size(); j++) {
-                Schedule s1 = list.get(i), s2 = list.get(j);
-                if (s1.getRepeat() == s2.getRepeat()) {
-                    if (s1.getRepeat() == Repeat.Weekly) {
-                        boolean sameWeekday = false;
-                        for (int k = 1; k <= 7; k++) {
-                            if (s1.getWeekdays()[k] && s2.getWeekdays()[k]) {
-                                // they are both active on the same weekday
-                                sameWeekday = true;
-                            }
-                        }
-                        if (!sameWeekday) {
-                            // they don't have any weekdays in common, clearly they can't overlap
-                            continue;
-                        }
-                    }
-                    if (s1.getEnd().compareTo(s2.getStart()) > 0 && s2.getEnd().compareTo(s1.getStart()) > 0) {
-                        // they overlap
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
 
     public static class Deserializer implements JsonDeserializer<Schedule> {
 

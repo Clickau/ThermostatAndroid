@@ -177,7 +177,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
                                     .setPositiveButton(android.R.string.ok, null)
                                     .create().show();
                         }
-                        listAdapter.updateSchedules(list);
+                        listAdapter.updateDataSet(list);
                         break;
                     case FirebaseService.RESULT_DATABASE_NOT_FOUND:
                         Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), R.string.firebase_database_not_found, Snackbar.LENGTH_LONG).show();
@@ -276,8 +276,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
 
         @Override
         public void onClick(View v) {
-            Log.d(TAG, Boolean.toString(Schedule.isScheduleListValid(listAdapter.getSchedules())));
-            if (!Schedule.isScheduleListValid(listAdapter.getSchedules())) {
+            if (listAdapter.isSchedulesConflicting()) {
                 Activity activity = getActivity();
                 if (activity == null) return;
                 Snackbar.make(activity.findViewById(R.id.fragment_schedules_coordinator_layout), "Some schedules of the same repeat overlap. Please resolve the conflict before committing", Snackbar.LENGTH_LONG).show();

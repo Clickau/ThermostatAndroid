@@ -15,7 +15,10 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 
 @SuppressWarnings("WeakerAccess")
 public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -39,7 +42,9 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         private final TextView endTextView;
         private final TextView weekdaysTextView;
         private final CheckBox checkBox;
+        private final TextView errorTextView;
         private int position;
+        private boolean ignoreCheckedChange = false;
 
         private SchedulesViewHolder(@NonNull final View itemView, final WeakReference<ViewHolderResponder> responder){
             super(itemView);
@@ -49,18 +54,18 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             endTextView = itemView.findViewById(R.id.schedule_view_end_text_view);
             weekdaysTextView = itemView.findViewById(R.id.schedule_view_weekdays_text_view);
             checkBox = itemView.findViewById(R.id.schedule_view_checkbox);
+            errorTextView = itemView.findViewById(R.id.schedule_view_error_text_view);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (isSelectModeActive()) {
-                        if (selectedArray.contains(position)) {
-                            checkBox.setChecked(false);
-                        } else {
-                            checkBox.setChecked(true);
-                        }
+                        checkBox.toggle();
                     } else {
-                        responder.get().onClickOnItem(VIEW_TYPE_NORMAL, position);
+                        ViewHolderResponder viewHolderResponder = responder.get();
+                        if (viewHolderResponder == null)
+                            return;
+                        viewHolderResponder.onClickOnItem(VIEW_TYPE_NORMAL, position);
                     }
                 }
             });
@@ -78,20 +83,21 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (ignoreCheckedChange)
+                        return;
                     if (isSelectModeActive()) {
                         if (!isChecked) {
                             // it was checked before
-                            selectedArray.remove((Integer) position);
-                            if (selectedArray.isEmpty())
+                            selectedSet.remove(position);
+                            if (selectedSet.isEmpty())
                                 setSelectModeActive(false);
                         } else {
-                            selectedArray.add(position);
+                            selectedSet.add(position);
                         }
                     } else if (isChecked) {
                         setSelectModeActive(true);
-                        selectedArray.add(position);
+                        selectedSet.add(position);
                     }
-                    // if the checkbox is unchecked programmatically when deleting schedules, when isSelectModeActive is false, don't do anything
                 }
             });
         }
@@ -120,6 +126,16 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 weekdaysTextView.setVisibility(View.GONE);
             }
             this.position = position;
+            ignoreCheckedChange = true;
+            if (selectedSet.contains(position))
+                checkBox.setChecked(true);
+            else
+                checkBox.setChecked(false);
+            ignoreCheckedChange = false;
+            if (conflictingSet.contains(position))
+                errorTextView.setVisibility(View.VISIBLE);
+            else
+                errorTextView.setVisibility(View.GONE);
         }
     }
 
@@ -130,25 +146,30 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    responder.get().onClickOnItem(VIEW_TYPE_ADD, 0);
+                    ViewHolderResponder viewHolderResponder = responder.get();
+                    if (viewHolderResponder == null)
+                        return;
+                    viewHolderResponder.onClickOnItem(VIEW_TYPE_ADD, 0);
                 }
             });
         }
     }
 
     private final ArrayList<Schedule> schedules;
-    private final WeakReference<ViewHolderResponder> responder;
+    private final WeakReference<ViewHolderResponder> viewHolderResponderReference;
     private boolean schedulesModifiedLocally = false;
     private boolean selectModeActive = false;
-    private final ArrayList<Integer> selectedArray = new ArrayList<>();
+    private final Set<Integer> selectedSet = new TreeSet<>(Collections.<Integer>reverseOrder()); // make the set sorted in descending order
     private AddButtonViewHolder addButtonViewHolder;
-    private final WeakReference<OnSelectModeChangedListener> selectModeChangedListener;
-    private final ArrayList<WeakReference<SchedulesViewHolder>> scheduleViewHolders = new ArrayList<>();
+    private final WeakReference<OnSelectModeChangedListener> selectModeChangedListenerReference;
+    private final ArrayList<WeakReference<SchedulesViewHolder>> schedulesViewHolderReferences = new ArrayList<>();
+    private final Set<Integer> conflictingSet = new HashSet<>();
 
-    public SchedulesAdapter(ArrayList<Schedule> schedules, WeakReference<ViewHolderResponder> responder, WeakReference<OnSelectModeChangedListener> selectModeChangedListener) {
+    public SchedulesAdapter(ArrayList<Schedule> schedules, WeakReference<ViewHolderResponder> viewHolderResponderReference, WeakReference<OnSelectModeChangedListener> selectModeChangedListenerReference) {
         this.schedules = schedules;
-        this.responder = responder;
-        this.selectModeChangedListener = selectModeChangedListener;
+        this.viewHolderResponderReference = viewHolderResponderReference;
+        this.selectModeChangedListenerReference = selectModeChangedListenerReference;
+        findConflictingSchedules();
     }
 
     @Override
@@ -165,13 +186,13 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         if (viewType == VIEW_TYPE_ADD) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.add_schedule_button, parent, false);
-            addButtonViewHolder = new AddButtonViewHolder(view, responder);
+            addButtonViewHolder = new AddButtonViewHolder(view, viewHolderResponderReference);
             return addButtonViewHolder;
         }
 
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.schedule_view, parent, false);
-        SchedulesViewHolder holder =  new SchedulesViewHolder(view, responder);
-        scheduleViewHolders.add(new WeakReference<>(holder));
+        SchedulesViewHolder holder =  new SchedulesViewHolder(view, viewHolderResponderReference);
+        schedulesViewHolderReferences.add(new WeakReference<>(holder));
         return holder;
     }
 
@@ -190,11 +211,12 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return schedules.size() + 1;
     }
 
-    public void updateSchedules(Collection<? extends Schedule> newSchedules) {
+    public void updateDataSet(Collection<? extends Schedule> newSchedules) {
         schedules.clear();
         schedules.addAll(newSchedules);
-        notifyDataSetChanged();
         schedulesModifiedLocally = false;
+        // notifyDataSetChanged() is called in findConflictingSchedules();
+        findConflictingSchedules();
     }
 
     public Schedule getItemAt(int position) {
@@ -203,45 +225,97 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public void setItemAt(int position, Schedule newSchedule) {
         schedules.set(position, newSchedule);
-        notifyItemChanged(position + 1);
+        //notifyItemChanged(position + 1);
         schedulesModifiedLocally = true;
+        // notifyDataSetChanged() is called in findConflictingSchedules();
+        findConflictingSchedules();
     }
 
     public void addItem(Schedule newSchedule) {
         schedules.add(0, newSchedule);
-        notifyItemInserted(1);
+        //notifyItemInserted(1);
         schedulesModifiedLocally = true;
+        // notifyDataSetChanged() is called in findConflictingSchedules();
+        findConflictingSchedules();
     }
 
     public void deleteSelected() {
-        // sort in descending order so we don't mess up indices when removing
-        Collections.sort(selectedArray, Collections.<Integer>reverseOrder());
-        for (int position : selectedArray) {
+        // the set is in descending order so the indices are not messed up
+        for (int position : selectedSet) {
             schedules.remove(position);
         }
-        selectedArray.clear();
+        selectedSet.clear();
         setSelectModeActive(false);
-        notifyDataSetChanged();
         schedulesModifiedLocally = true;
-        // do this at the end, so that select mode is not active, so the checked listeners don't do anything
-        for (WeakReference<SchedulesViewHolder> holder : scheduleViewHolders) {
-            holder.get().checkBox.setChecked(false);
+        for (WeakReference<SchedulesViewHolder> ref : schedulesViewHolderReferences) {
+            SchedulesViewHolder holder = ref.get();
+            if (holder == null)
+                continue;
+            holder.ignoreCheckedChange = true;
+            holder.checkBox.setChecked(false);
+            holder.ignoreCheckedChange = false;
         }
+        // notifyDataSetChanged() is called in findConflictingSchedules();
+        findConflictingSchedules();
     }
 
     public void setSelectModeActive(boolean selectModeActive) {
         addButtonViewHolder.itemView.setEnabled(!selectModeActive);
         this.selectModeActive = selectModeActive;
-        selectModeChangedListener.get().OnSelectModeChanged(selectModeActive);
+        OnSelectModeChangedListener listener = selectModeChangedListenerReference.get();
+        listener.OnSelectModeChanged(selectModeActive);
     }
 
     public void clearSelected() {
         setSelectModeActive(false);
-        selectedArray.clear();
-        // do this at the end, so that select mode is not active, so the checked listeners don't do anything
-        for (WeakReference<SchedulesViewHolder> holder : scheduleViewHolders) {
-            holder.get().checkBox.setChecked(false);
+        selectedSet.clear();
+        for (WeakReference<SchedulesViewHolder> ref : schedulesViewHolderReferences) {
+            SchedulesViewHolder holder = ref.get();
+            if (holder == null)
+                continue;
+            holder.ignoreCheckedChange = true;
+            holder.checkBox.setChecked(false);
+            holder.ignoreCheckedChange = false;
         }
+    }
+
+    /**
+     * Checks if any two schedules overlap and have the same repeat and if there are, stores their indices in conflictingSet
+     */
+    private void findConflictingSchedules() {
+        conflictingSet.clear();
+        for (int i = 0; i < schedules.size(); i++) {
+            Schedule s1 = schedules.get(i);
+            for (int j = i + 1; j < schedules.size(); j++) {
+                Schedule s2 = schedules.get(j);
+                if (s1.getRepeat() == s2.getRepeat()) {
+                    if (s1.getRepeat() == Schedule.Repeat.Weekly) {
+                        boolean sameWeekday = false;
+                        for (int k = 1; k <= 7; k++) {
+                            if (s1.getWeekdays()[k] && s2.getWeekdays()[k]) {
+                                // they are both active on the same weekday
+                                sameWeekday = true;
+                            }
+                        }
+                        if (!sameWeekday) {
+                            // they don't have any weekdays in common, clearly they can't overlap
+                            continue;
+                        }
+                    }
+                    if (s1.getEnd().compareTo(s2.getStart()) > 0 && s2.getEnd().compareTo(s1.getStart()) > 0) {
+                        // they overlap
+                        conflictingSet.add(i);
+                        conflictingSet.add(j);
+                    }
+                }
+            }
+        }
+        // update the error TextViews
+        notifyDataSetChanged();
+    }
+
+    public boolean isSchedulesConflicting() {
+        return !conflictingSet.isEmpty();
     }
 
     public ArrayList<Schedule> getSchedules() {
