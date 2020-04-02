@@ -218,10 +218,17 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.fragment_schedules_menu_refresh) {
-            swipeRefreshLayout.setRefreshing(true);
-            OnRefresh();
-            return true;
+        switch (item.getItemId()) {
+            case R.id.fragment_schedules_menu_refresh:
+                swipeRefreshLayout.setRefreshing(true);
+                OnRefresh();
+                return true;
+            case R.id.fragment_schedules_menu_select_all:
+                listAdapter.selectAll();
+                return true;
+            case R.id.fragment_schedules_menu_deselect_all:
+                listAdapter.clearSelected();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

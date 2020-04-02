@@ -5,4 +5,13 @@
         android:id="@+id/fragment_schedules_menu_refresh"
         app:showAsAction="never"
         android:title="@string/schedules_menu_refresh" />
+
+    <item
+        android:id="@+id/fragment_schedules_menu_select_all"
+        app:showAsAction="never"
+        android:title="@string/schedules_menu_select_all" />
+
+    <item android:id="@+id/fragment_schedules_menu_deselect_all"
+        app:showAsAction="never"
+        android:title="@string/schedules_menu_deselect_all" />
 </menu>

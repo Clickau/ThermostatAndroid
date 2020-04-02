@@ -1,6 +1,5 @@
 package com.clickau.thermostat;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.TypedValue;
@@ -8,10 +7,11 @@ import android.util.TypedValue;
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.core.content.ContextCompat;
+import androidx.multidex.MultiDexApplication;
 
 // used to make project resources available from any class, without needing a context
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class App extends Application {
+public class App extends MultiDexApplication {
     private static App instance;
     private static Resources res;
 

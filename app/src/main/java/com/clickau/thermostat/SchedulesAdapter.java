@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.eclipse.collections.impl.list.Interval;
+
 import java.lang.ref.WeakReference;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
@@ -162,7 +164,6 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private final Set<Integer> selectedSet = new TreeSet<>(Collections.<Integer>reverseOrder()); // make the set sorted in descending order
     private AddButtonViewHolder addButtonViewHolder;
     private final WeakReference<OnSelectModeChangedListener> selectModeChangedListenerReference;
-    private final ArrayList<WeakReference<SchedulesViewHolder>> schedulesViewHolderReferences = new ArrayList<>();
     private final Set<Integer> conflictingSet = new HashSet<>();
 
     public SchedulesAdapter(ArrayList<Schedule> schedules, WeakReference<ViewHolderResponder> viewHolderResponderReference, WeakReference<OnSelectModeChangedListener> selectModeChangedListenerReference) {
@@ -191,9 +192,7 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.schedule_view, parent, false);
-        SchedulesViewHolder holder =  new SchedulesViewHolder(view, viewHolderResponderReference);
-        schedulesViewHolderReferences.add(new WeakReference<>(holder));
-        return holder;
+        return new SchedulesViewHolder(view, viewHolderResponderReference);
     }
 
     @Override
@@ -247,14 +246,6 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         selectedSet.clear();
         setSelectModeActive(false);
         schedulesModifiedLocally = true;
-        for (WeakReference<SchedulesViewHolder> ref : schedulesViewHolderReferences) {
-            SchedulesViewHolder holder = ref.get();
-            if (holder == null)
-                continue;
-            holder.ignoreCheckedChange = true;
-            holder.checkBox.setChecked(false);
-            holder.ignoreCheckedChange = false;
-        }
         // notifyDataSetChanged() is called in findConflictingSchedules();
         findConflictingSchedules();
     }
@@ -269,14 +260,7 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void clearSelected() {
         setSelectModeActive(false);
         selectedSet.clear();
-        for (WeakReference<SchedulesViewHolder> ref : schedulesViewHolderReferences) {
-            SchedulesViewHolder holder = ref.get();
-            if (holder == null)
-                continue;
-            holder.ignoreCheckedChange = true;
-            holder.checkBox.setChecked(false);
-            holder.ignoreCheckedChange = false;
-        }
+        notifyDataSetChanged();
     }
 
     /**
@@ -311,6 +295,13 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
         }
         // update the error TextViews
+        notifyDataSetChanged();
+    }
+
+    public void selectAll() {
+        if (!isSelectModeActive())
+            setSelectModeActive(true);
+        selectedSet.addAll(Interval.zeroTo(schedules.size() - 1));
         notifyDataSetChanged();
     }
 
