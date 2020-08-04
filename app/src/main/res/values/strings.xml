@@ -23,11 +23,9 @@
     <string name="setup_firebase_url_hint">Firebase URL</string>
     <string name="setup_firebase_root_domain">.firebaseio.com</string>
     <string name="setup_firebase_secret_key_hint">Secret Key</string>
-    <string name="setup_firebase_schedules_path">Path to Schedules</string>
     <string name="setup_firebase_submit_button_text">Submit</string>
     <string name="setup_firebase_invalid_url">Invalid URL</string>
     <string name="setup_firebase_invalid_secret">Invalid Secret</string>
-    <string name="setup_firebase_invalid_schedules_path">Invalid Path</string>
     <string name="firebase_success">Success</string>
     <string name="firebase_database_not_found">Database not found. Check your URL</string>
     <string name="firebase_unauthorized">Unauthorized to access database. Check your secret</string>

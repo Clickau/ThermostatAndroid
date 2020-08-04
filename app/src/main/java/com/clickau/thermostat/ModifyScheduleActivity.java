@@ -3,7 +3,6 @@ package com.clickau.thermostat;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,11 +12,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -297,13 +294,10 @@ public class ModifyScheduleActivity extends AppCompatActivity {
             secondary.setWrapSelectorWheel(true);
             secondary.setValue(temperatureDecimal);
             separator.setText(String.valueOf(DecimalFormatSymbols.getInstance().getDecimalSeparator()));
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    float result = primary.getValue() + (float) secondary.getValue() / 10;
-                    schedule.setTemperature(result);
-                    temperatureButton.setText(String.format(Locale.getDefault(),"%.1f°C", schedule.getTemperature()));
-                }
+            builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                float result = primary.getValue() + (float) secondary.getValue() / 10;
+                schedule.setTemperature(result);
+                temperatureButton.setText(String.format(Locale.getDefault(),"%.1f°C", schedule.getTemperature()));
             });
             builder.setNegativeButton(android.R.string.cancel, null)
                     .create().show();
@@ -315,34 +309,31 @@ public class ModifyScheduleActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             new AlertDialog.Builder(ModifyScheduleActivity.this)
-                    .setItems(Schedule.Repeat.getStrings(), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Schedule.Repeat selected = Schedule.Repeat.values()[which];
-                            repeatButton.setText(selected.toString());
-                            schedule.setRepeat(selected);
-                            switch (selected) {
-                                case Once:
-                                    weekdaysLayout.setVisibility(View.GONE);
-                                    startDateButton.setVisibility(View.VISIBLE);
-                                    endDateButton.setVisibility(View.VISIBLE);
-                                    break;
-                                case Daily:
-                                    weekdaysLayout.setVisibility(View.GONE);
-                                    startDateButton.setVisibility(View.GONE);
-                                    endDateButton.setVisibility(View.GONE);
-                                    break;
-                                case Weekly:
-                                    weekdaysLayout.setVisibility(View.VISIBLE);
-                                    startDateButton.setVisibility(View.GONE);
-                                    endDateButton.setVisibility(View.GONE);
-                                    break;
-                            }
-                            startTimeButton.setText(timeFormat.format(schedule.getStart()));
-                            startDateButton.setText(dateFormat.format(schedule.getStart()));
-                            endTimeButton.setText(timeFormat.format(schedule.getEnd()));
-                            endDateButton.setText(dateFormat.format(schedule.getEnd()));
+                    .setItems(Schedule.Repeat.getStrings(), (dialog, which) -> {
+                        Schedule.Repeat selected = Schedule.Repeat.values()[which];
+                        repeatButton.setText(selected.toString());
+                        schedule.setRepeat(selected);
+                        switch (selected) {
+                            case Once:
+                                weekdaysLayout.setVisibility(View.GONE);
+                                startDateButton.setVisibility(View.VISIBLE);
+                                endDateButton.setVisibility(View.VISIBLE);
+                                break;
+                            case Daily:
+                                weekdaysLayout.setVisibility(View.GONE);
+                                startDateButton.setVisibility(View.GONE);
+                                endDateButton.setVisibility(View.GONE);
+                                break;
+                            case Weekly:
+                                weekdaysLayout.setVisibility(View.VISIBLE);
+                                startDateButton.setVisibility(View.GONE);
+                                endDateButton.setVisibility(View.GONE);
+                                break;
                         }
+                        startTimeButton.setText(timeFormat.format(schedule.getStart()));
+                        startDateButton.setText(dateFormat.format(schedule.getStart()));
+                        endTimeButton.setText(timeFormat.format(schedule.getEnd()));
+                        endDateButton.setText(dateFormat.format(schedule.getEnd()));
                     })
                     .create().show();
         }
@@ -387,26 +378,23 @@ public class ModifyScheduleActivity extends AppCompatActivity {
                 calendar.setTime(schedule.getEnd());
             int hour = calendar.get(Calendar.HOUR_OF_DAY);
             int minute = calendar.get(Calendar.MINUTE);
-            TimePickerDialog timePickerDialog = new TimePickerDialog(ModifyScheduleActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                @Override
-                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                    calendar.set(Calendar.MINUTE, minute);
-                    if (which == START) {
-                        schedule.setStart(calendar.getTime());
-                        startTimeButton.setText(timeFormat.format(schedule.getStart()));
-                    }
-                    else {
-                        schedule.setEnd(calendar.getTime());
-                        endTimeButton.setText(timeFormat.format(schedule.getEnd()));
-                    }
-                    if (schedule.getStart().compareTo(schedule.getEnd()) >= 0) {
-                        startTimeButton.setTextColor(getResources().getColor(R.color.errorRed));
-                        startDateButton.setTextColor(getResources().getColor(R.color.errorRed));
-                    } else {
-                        startTimeButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
-                        startDateButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
-                    }
+            TimePickerDialog timePickerDialog = new TimePickerDialog(ModifyScheduleActivity.this, (view, hourOfDay, minute1) -> {
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                calendar.set(Calendar.MINUTE, minute1);
+                if (which == START) {
+                    schedule.setStart(calendar.getTime());
+                    startTimeButton.setText(timeFormat.format(schedule.getStart()));
+                }
+                else {
+                    schedule.setEnd(calendar.getTime());
+                    endTimeButton.setText(timeFormat.format(schedule.getEnd()));
+                }
+                if (schedule.getStart().compareTo(schedule.getEnd()) >= 0) {
+                    startTimeButton.setTextColor(getResources().getColor(R.color.errorRed));
+                    startDateButton.setTextColor(getResources().getColor(R.color.errorRed));
+                } else {
+                    startTimeButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
+                    startDateButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
                 }
             }, hour, minute, android.text.format.DateFormat.is24HourFormat(ModifyScheduleActivity.this));
             timePickerDialog.show();
@@ -434,27 +422,24 @@ public class ModifyScheduleActivity extends AppCompatActivity {
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH);
             int day = calendar.get(Calendar.DAY_OF_MONTH);
-            DatePickerDialog datePickerDialog = new DatePickerDialog(ModifyScheduleActivity.this, new DatePickerDialog.OnDateSetListener() {
-                @Override
-                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                    calendar.set(Calendar.YEAR, year);
-                    calendar.set(Calendar.MONTH, month);
-                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                    if (which == START) {
-                        schedule.setStart(calendar.getTime());
-                        startDateButton.setText(dateFormat.format(schedule.getStart()));
-                    }
-                    else {
-                        schedule.setEnd(calendar.getTime());
-                        endDateButton.setText(dateFormat.format(schedule.getEnd()));
-                    }
-                    if (schedule.getStart().compareTo(schedule.getEnd()) >= 0) {
-                        startTimeButton.setTextColor(getResources().getColor(R.color.errorRed));
-                        startDateButton.setTextColor(getResources().getColor(R.color.errorRed));
-                    } else {
-                        startTimeButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
-                        startDateButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
-                    }
+            DatePickerDialog datePickerDialog = new DatePickerDialog(ModifyScheduleActivity.this, (view, year1, month1, dayOfMonth) -> {
+                calendar.set(Calendar.YEAR, year1);
+                calendar.set(Calendar.MONTH, month1);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                if (which == START) {
+                    schedule.setStart(calendar.getTime());
+                    startDateButton.setText(dateFormat.format(schedule.getStart()));
+                }
+                else {
+                    schedule.setEnd(calendar.getTime());
+                    endDateButton.setText(dateFormat.format(schedule.getEnd()));
+                }
+                if (schedule.getStart().compareTo(schedule.getEnd()) >= 0) {
+                    startTimeButton.setTextColor(getResources().getColor(R.color.errorRed));
+                    startDateButton.setTextColor(getResources().getColor(R.color.errorRed));
+                } else {
+                    startTimeButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
+                    startDateButton.setTextColor(App.resolveColorAttr(ModifyScheduleActivity.this, android.R.attr.textColorPrimary));
                 }
             }, year, month, day);
             datePickerDialog.show();

@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -58,48 +57,39 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             checkBox = itemView.findViewById(R.id.schedule_view_checkbox);
             errorTextView = itemView.findViewById(R.id.schedule_view_error_text_view);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (isSelectModeActive()) {
-                        checkBox.toggle();
-                    } else {
-                        ViewHolderResponder viewHolderResponder = responder.get();
-                        if (viewHolderResponder == null)
-                            return;
-                        viewHolderResponder.onClickOnItem(VIEW_TYPE_NORMAL, position);
-                    }
-                }
-            });
-
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (isSelectModeActive())
-                        return false;
-                    checkBox.setChecked(true);
-                    return true;
-                }
-            });
-
-            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (ignoreCheckedChange)
+            itemView.setOnClickListener(v -> {
+                if (isSelectModeActive()) {
+                    checkBox.toggle();
+                } else {
+                    ViewHolderResponder viewHolderResponder = responder.get();
+                    if (viewHolderResponder == null)
                         return;
-                    if (isSelectModeActive()) {
-                        if (!isChecked) {
-                            // it was checked before
-                            selectedSet.remove(position);
-                            if (selectedSet.isEmpty())
-                                setSelectModeActive(false);
-                        } else {
-                            selectedSet.add(position);
-                        }
-                    } else if (isChecked) {
-                        setSelectModeActive(true);
+                    viewHolderResponder.onClickOnItem(VIEW_TYPE_NORMAL, position);
+                }
+            });
+
+            itemView.setOnLongClickListener(v -> {
+                if (isSelectModeActive())
+                    return false;
+                checkBox.setChecked(true);
+                return true;
+            });
+
+            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (ignoreCheckedChange)
+                    return;
+                if (isSelectModeActive()) {
+                    if (!isChecked) {
+                        // it was checked before
+                        selectedSet.remove(position);
+                        if (selectedSet.isEmpty())
+                            setSelectModeActive(false);
+                    } else {
                         selectedSet.add(position);
                     }
+                } else if (isChecked) {
+                    setSelectModeActive(true);
+                    selectedSet.add(position);
                 }
             });
         }
@@ -145,14 +135,11 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         public AddButtonViewHolder(@NonNull View itemView, final WeakReference<ViewHolderResponder> responder) {
             super(itemView);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ViewHolderResponder viewHolderResponder = responder.get();
-                    if (viewHolderResponder == null)
-                        return;
-                    viewHolderResponder.onClickOnItem(VIEW_TYPE_ADD, 0);
-                }
+            itemView.setOnClickListener(v -> {
+                ViewHolderResponder viewHolderResponder = responder.get();
+                if (viewHolderResponder == null)
+                    return;
+                viewHolderResponder.onClickOnItem(VIEW_TYPE_ADD, 0);
             });
         }
     }
@@ -161,6 +148,7 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private final WeakReference<ViewHolderResponder> viewHolderResponderReference;
     private boolean schedulesModifiedLocally = false;
     private boolean selectModeActive = false;
+    @SuppressWarnings("RedundantTypeArguments")
     private final Set<Integer> selectedSet = new TreeSet<>(Collections.<Integer>reverseOrder()); // make the set sorted in descending order
     private AddButtonViewHolder addButtonViewHolder;
     private final WeakReference<OnSelectModeChangedListener> selectModeChangedListenerReference;

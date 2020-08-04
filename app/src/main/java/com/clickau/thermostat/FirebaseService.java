@@ -26,6 +26,7 @@ public class FirebaseService extends IntentService {
     private static final String ACTION_GET = "com.clickau.thermostat.action.firebase.get";
     private static final String ACTION_SET = "com.clickau.thermostat.action.firebase.set";
     private static final String ACTION_PUSH = "com.clickau.thermostat.action.firebase.push";
+    private static final String SCHEDULES_PATH = "/Schedules.json";
 
     public static final int RESULT_SUCCESS = 0;
     public static final int RESULT_MALFORMED_URL = 1;
@@ -39,13 +40,11 @@ public class FirebaseService extends IntentService {
 
     private static String firebaseUrl = null;
     private static String firebaseSecret = null;
-    private static String firebaseSchedulesPath = null;
     private static boolean initialized = false;
 
-    public static void initialize(String url, String secret, String schedulesPath) {
+    public static void initialize(String url, String secret) {
         firebaseUrl = url;
         firebaseSecret = secret;
-        firebaseSchedulesPath = schedulesPath;
         initialized = true;
     }
 
@@ -55,11 +54,11 @@ public class FirebaseService extends IntentService {
     }
 
     public static void getSchedules(Context context, ResultReceiver receiver) {
-        get(context, firebaseSchedulesPath, receiver);
+        get(context, SCHEDULES_PATH, receiver);
     }
 
     public static void setSchedules(Context context, String data, ResultReceiver receiver) {
-        set(context, firebaseSchedulesPath, data, receiver);
+        set(context, SCHEDULES_PATH, data, receiver);
     }
 
     public static void set(Context context, String path, String data, ResultReceiver receiver) {

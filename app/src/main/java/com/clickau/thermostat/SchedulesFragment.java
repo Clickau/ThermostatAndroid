@@ -1,7 +1,6 @@
 package com.clickau.thermostat;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -64,21 +63,11 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
         uploadFAB.setOnClickListener(new UploadOnClickListener());
 
         deleteFAB = view.findViewById(R.id.fragment_schedules_delete_fab);
-        deleteFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listAdapter.deleteSelected();
-            }
-        });
+        deleteFAB.setOnClickListener(v -> listAdapter.deleteSelected());
         deleteFAB.setVisibility(View.GONE);
 
         swipeRefreshLayout = view.findViewById(R.id.fragment_schedules_swipe_refresh_layout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                OnRefresh();
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(this::OnRefresh);
 
         setHasOptionsMenu(true);
 
@@ -88,9 +77,11 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         if (savedInstanceState == null) {
+            //noinspection Convert2Diamond
             listAdapter = new SchedulesAdapter(new ArrayList<Schedule>(), new WeakReference<SchedulesAdapter.ViewHolderResponder>(this), new WeakReference<SchedulesAdapter.OnSelectModeChangedListener>(this));
         } else {
             ArrayList<Schedule> list = savedInstanceState.getParcelableArrayList("schedules");
+            //noinspection Convert2Diamond
             listAdapter = new SchedulesAdapter(list, new WeakReference<SchedulesAdapter.ViewHolderResponder>(this), new WeakReference<SchedulesAdapter.OnSelectModeChangedListener>(this));
         }
         recyclerView.setAdapter(listAdapter);
@@ -110,18 +101,8 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
                     .setTitle(R.string.schedules_discard_changes_message_title)
                     .setMessage(R.string.schedules_discard_changes_message)
                     .setCancelable(false)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            RefreshList();
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    })
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> RefreshList())
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> swipeRefreshLayout.setRefreshing(false))
                     .create().show();
         } else {
             RefreshList();

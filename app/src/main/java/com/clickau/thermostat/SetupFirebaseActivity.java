@@ -31,10 +31,8 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
 
     private TextInputEditText firebaseURLEditText;
     private TextInputEditText secretKeyEditText;
-    private TextInputEditText schedulesPathEditText;
     private TextInputLayout firebaseURLInputLayout;
     private TextInputLayout secretKeyInputLayout;
-    private TextInputLayout schedulesPathInputLayout;
     private Button submitButton;
     private ProgressBar progressBar;
 
@@ -56,10 +54,8 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
 
         firebaseURLEditText = findViewById(R.id.setup_firebase_url);
         secretKeyEditText = findViewById(R.id.setup_firebase_secret_key);
-        schedulesPathEditText = findViewById(R.id.setup_firebase_schedules_path);
         firebaseURLInputLayout = findViewById(R.id.setup_firebase_url_text_input_layout);
         secretKeyInputLayout = findViewById(R.id.setup_firebase_secret_key_text_input_layout);
-        schedulesPathInputLayout = findViewById(R.id.setup_firebase_schedules_path_text_input_layout);
         submitButton = findViewById(R.id.setup_firebase_submit_button);
         progressBar = findViewById(R.id.setup_firebase_progress_bar);
 
@@ -109,29 +105,7 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
             }
         });
 
-        schedulesPathEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (!TextUtils.isEmpty(s) && !s.toString().matches("[^\\.\\$\\#\\[\\]]*(\\.json)?")) {
-                    schedulesPathInputLayout.setError(getString(R.string.setup_firebase_invalid_schedules_path));
-                } else {
-                    schedulesPathInputLayout.setError(null);
-                }
-            }
-        });
-
         progressBar.setVisibility(View.INVISIBLE);
-
     }
 
     @Override
@@ -151,8 +125,6 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
         final String urlStr = firebaseURLEditText.getText().toString();
         @SuppressWarnings("ConstantConditions")
         final String secret = secretKeyEditText.getText().toString();
-        @SuppressWarnings("ConstantConditions")
-        final String schedulesPath = schedulesPathEditText.getText().toString();
 
         // must contain at least one alphanumeric character and optionally more alphanumeric characters and dashes
         if (TextUtils.isEmpty(urlStr) || !urlStr.matches("[a-zA-Z0-9][a-zA-Z0-9-]*")) {
@@ -168,18 +140,12 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
             return;
         }
 
-        if (!TextUtils.isEmpty(schedulesPath) && !schedulesPath.matches("[^\\.\\$\\#\\[\\]]*(\\.json)?")) {
-            Snackbar.make(findViewById(android.R.id.content), R.string.setup_firebase_invalid_schedules_path, Snackbar.LENGTH_LONG).show();
-            schedulesPathInputLayout.setError(getString(R.string.setup_firebase_invalid_schedules_path));
-            return;
-        }
-
         submitButton.setEnabled(false);
         progressBar.setVisibility(View.VISIBLE);
 
         final String url = urlStr + ".firebaseio.com";
 
-        FirebaseService.initialize(url, secret, schedulesPath);
+        FirebaseService.initialize(url, secret);
         FirebaseService.getSchedules(this, new ResultReceiver(new Handler()) {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -196,7 +162,6 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
                         pref.edit()
                                 .putString("url", url)
                                 .putString("secret", secret)
-                                .putString("schedules_path", schedulesPath)
                                 .apply();
                         // close all activities and restart main activity
                         finishAffinity();
@@ -224,8 +189,7 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
                 SharedPreferences pref = getSharedPreferences("firebase_credentials", Context.MODE_PRIVATE);
                 final String oldUrl = pref.getString("url", null);
                 final String oldSecret = pref.getString("secret", null);
-                final String oldPath = pref.getString("schedules_path", null);
-                FirebaseService.initialize(oldUrl, oldSecret, oldPath);
+                FirebaseService.initialize(oldUrl, oldSecret);
             }
         });
     }

@@ -26,22 +26,16 @@ public class MoreFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         MaterialButton setupWifiButton = view.findViewById(R.id.more_setup_wifi_button);
-        setupWifiButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v)
-            {
-                Intent intent = new Intent(getContext(), SetupWifiActivity.class);
-                startActivity(intent);
-            }
+        setupWifiButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), SetupWifiActivity.class);
+            startActivity(intent);
         });
 
         MaterialButton setupFirebaseButton = view.findViewById(R.id.more_setup_firebase_button);
-        setupFirebaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), SetupFirebaseActivity.class);
-                intent.putExtra("openMethod", "manual");
-                startActivity(intent);
-            }
+        setupFirebaseButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), SetupFirebaseActivity.class);
+            intent.putExtra("openMethod", "manual");
+            startActivity(intent);
         });
     }
 }
