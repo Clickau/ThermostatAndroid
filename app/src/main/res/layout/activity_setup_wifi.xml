@@ -82,14 +82,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                app:errorEnabled="true">
+                app:errorEnabled="true"
+                app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/setup_wifi_password_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:importantForAutofill="no"
-                    android:inputType="textVisiblePassword"
+                    android:inputType="textPassword"
                     android:lines="1"
                     android:maxLines="1"
                     android:hint="@string/setup_wifi_password_hint"/>

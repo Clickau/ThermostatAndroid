@@ -106,6 +106,13 @@ public class SetupFirebaseActivity extends AppCompatActivity implements View.OnC
         });
 
         progressBar.setVisibility(View.INVISIBLE);
+
+        SharedPreferences pref = getSharedPreferences("firebase_credentials", Context.MODE_PRIVATE);
+        String fullUrl = pref.getString("url", null);
+        if (fullUrl != null) {
+            String url = fullUrl.replace(".firebaseio.com", "");
+            firebaseURLEditText.setText(url);
+        }
     }
 
     @Override
