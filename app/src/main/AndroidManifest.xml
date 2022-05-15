@@ -26,8 +26,8 @@
             android:label="@string/more_setup_firebase_button_text"
             android:parentActivityName=".MainActivity" />
         <activity
-            android:name=".SetupWifiActivity"
-            android:label="@string/more_setup_wifi_button_text"
+            android:name=".SetupThermostatActivity"
+            android:label="@string/more_setup_thermostat_button_text"
             android:parentActivityName=".MainActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -38,7 +38,7 @@
         </activity>
 
         <service
-            android:name=".SetupWifiActivity$SendRequestIntentService"
+            android:name=".SetupThermostatActivity$SendRequestIntentService"
             android:exported="false" />
 
         <service

@@ -25,9 +25,9 @@ public class MoreFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MaterialButton setupWifiButton = view.findViewById(R.id.more_setup_wifi_button);
-        setupWifiButton.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), SetupWifiActivity.class);
+        MaterialButton setupThermostatButton = view.findViewById(R.id.more_setup_thermostat_button);
+        setupThermostatButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), SetupThermostatActivity.class);
             startActivity(intent);
         });
 
