@@ -1,5 +1,6 @@
 package com.clickau.thermostat;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -197,6 +198,7 @@ public class SchedulesFragment extends Fragment implements SchedulesAdapter.View
         inflater.inflate(R.menu.fragment_schedules_menu, menu);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {

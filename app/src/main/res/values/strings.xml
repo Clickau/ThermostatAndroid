@@ -50,6 +50,8 @@
     </plurals>
     <string name="schedules_invalid_data_message_title">Invalid Data</string>
     <string name="schedules_invalid_data">The data found at the specified path is not in the right format and will be overwritten if you submit any changes</string>
+    <string name="schedules_upload_fab_description">Upload</string>
+    <string name="schedules_delete_fab_description">Delete</string>
     <string name="dialog_temperature_picker_title">Pick temperature</string>
     <string name="modify_schedule_modify_title">Modify schedule</string>
     <string name="modify_schedule_add_title">Add schedule</string>

@@ -34,7 +34,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_file_upload_black_24dp" />
+        android:src="@drawable/ic_file_upload_black_24dp"
+        android:contentDescription="@string/schedules_upload_fab_description" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fragment_schedules_delete_fab"
@@ -44,6 +45,7 @@
         android:layout_margin="16dp"
         app:backgroundTint="@android:color/holo_red_dark"
         android:src="@drawable/ic_delete_black_24dp"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:contentDescription="@string/schedules_delete_fab_description" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

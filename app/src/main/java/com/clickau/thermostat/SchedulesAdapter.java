@@ -119,10 +119,7 @@ public class SchedulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
             this.position = position;
             ignoreCheckedChange = true;
-            if (selectedSet.contains(position))
-                checkBox.setChecked(true);
-            else
-                checkBox.setChecked(false);
+            checkBox.setChecked(selectedSet.contains(position));
             ignoreCheckedChange = false;
             if (conflictingSet.contains(position))
                 errorTextView.setVisibility(View.VISIBLE);
