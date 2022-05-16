@@ -54,36 +54,39 @@ public class FirebaseService extends IntentService {
     }
 
     public static void getSchedules(Context context, ResultReceiver receiver) {
-        get(context, SCHEDULES_PATH, receiver);
+        get(context, SCHEDULES_PATH, null, receiver);
     }
 
     public static void setSchedules(Context context, String data, ResultReceiver receiver) {
-        set(context, SCHEDULES_PATH, data, receiver);
+        set(context, SCHEDULES_PATH, data, null, receiver);
     }
 
-    public static void set(Context context, String path, String data, ResultReceiver receiver) {
+    public static void set(Context context, String path, String data, String[] params, ResultReceiver receiver) {
         Intent intent = new Intent(context, FirebaseService.class);
         intent.setAction(ACTION_SET);
         intent.putExtra("path", path);
         intent.putExtra("data", data);
+        intent.putExtra("params", params);
         intent.putExtra("receiver", receiver);
         context.startService(intent);
     }
 
-    public static void get(Context context, String path, ResultReceiver receiver) {
+    public static void get(Context context, String path, String[] params, ResultReceiver receiver) {
         Intent intent = new Intent(context, FirebaseService.class);
         intent.setAction(ACTION_GET);
         intent.putExtra("path", path);
         intent.putExtra("data", "");
+        intent.putExtra("params", params);
         intent.putExtra("receiver", receiver);
         context.startService(intent);
     }
 
-    public static void push(Context context, String path, String data, ResultReceiver receiver) {
+    public static void push(Context context, String path, String data, String[] params, ResultReceiver receiver) {
         Intent intent = new Intent(context, FirebaseService.class);
         intent.setAction(ACTION_PUSH);
         intent.putExtra("path", path);
         intent.putExtra("data", data);
+        intent.putExtra("params", params);
         intent.putExtra("receiver", receiver);
         context.startService(intent);
     }
@@ -94,6 +97,7 @@ public class FirebaseService extends IntentService {
         final String action = intent.getAction();
         final String path = intent.getStringExtra("path");
         final String data = intent.getStringExtra("data");
+        final String[] params = intent.getStringArrayExtra("params");
         final ResultReceiver receiver = intent.getParcelableExtra("receiver");
 
         assert action != null && path != null && data != null && receiver != null;
@@ -113,6 +117,11 @@ public class FirebaseService extends IntentService {
             urlBuilder.append(".json");
         urlBuilder.append("?auth=");
         urlBuilder.append(firebaseSecret);
+        if (params != null)
+            for (String s : params) {
+                urlBuilder.append('&');
+                urlBuilder.append(s);
+            }
 
         URL url;
         try {

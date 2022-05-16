@@ -62,4 +62,11 @@
     <string name="schedules_discard_changes_message">Refreshing the schedule list will override any uncommitted changes you\'ve made. Are you sure you want to continue?</string>
     <string name="schedules_menu_select_all">Select all</string>
     <string name="schedules_menu_deselect_all">Deselect all</string>
+    <string name="dashboard_state_title">Thermostat State</string>
+    <string name="dashboard_state_heater_on">Heater: on</string>
+    <string name="dashboard_state_heater_off">Heater: off</string>
+    <string name="dashboard_state_na">N/A</string>
+    <string name="dashboard_temporary_title">Temporary Schedule</string>
+    <string name="dashboard_temporary_not_active">Temporary Schedule is not active</string>
+    <string name="dashboard_temporary_time_format">Expires %s</string>
 </resources>

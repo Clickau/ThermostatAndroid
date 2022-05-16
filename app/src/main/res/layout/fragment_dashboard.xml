@@ -1,16 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_dashboard_swipe_refresh_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/holo_red_dark"
-        android:textSize="30sp"
-        android:text="Dashboard"
-        android:layout_centerInParent="true"
-        tools:ignore="HardcodedText" />
+    <LinearLayout
+        android:id="@+id/fragment_dashboard_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp">
 
-</RelativeLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textColor="@color/darkGrey"
+            android:text="@string/dashboard_state_title"
+            android:layout_marginBottom="10dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/schedule_view_shape" >
+
+            <TextView
+                android:id="@+id/fragment_dashboard_state_temperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+                android:text="@string/dashboard_state_na" />
+
+            <TextView
+                android:id="@+id/fragment_dashboard_state_humidity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+                android:text="@string/dashboard_state_na"
+                tools:ignore="RelativeOverlap" />
+
+            <TextView
+                android:id="@+id/fragment_dashboard_state_heater"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fragment_dashboard_state_temperature"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                android:textColor="@color/darkGrey"
+                android:text="@string/dashboard_state_heater_off" />
+
+            <TextView
+                android:id="@+id/fragment_dashboard_state_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fragment_dashboard_state_heater"
+                android:text="@string/dashboard_state_na" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/fragment_dashboard_temporary_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textColor="@color/darkGrey"
+            android:text="@string/dashboard_temporary_not_active"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:visibility="invisible"
+            android:id="@+id/fragment_dashboard_temporary_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/schedule_view_shape" >
+
+            <TextView
+                android:id="@+id/fragment_dashboard_temporary_temperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+                android:text="@string/dashboard_state_na" />
+
+            <TextView
+                android:id="@+id/fragment_dashboard_temporary_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dashboard_temporary_time_format" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
